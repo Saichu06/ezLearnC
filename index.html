@@ -110,6 +110,126 @@ nav.scrolled{
   position:relative;
   text-align:center;
 }
+
+/* Language Selector Dropdown */
+.lang-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(12px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.lang-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.lang-card {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 32px;
+    padding: 48px;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    position: relative;
+    animation: fadeUp 0.4s ease;
+}
+
+.lang-card h2 {
+    font-family: var(--display);
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.lang-card p {
+    color: var(--text2);
+    margin-bottom: 32px;
+    font-size: 14px;
+}
+
+.lang-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.lang-option {
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    border-radius: 20px;
+    padding: 24px 16px;
+    cursor: pointer;
+    transition: all 0.25s;
+    text-align: center;
+}
+
+.lang-option:hover {
+    border-color: var(--accent);
+    transform: translateY(-4px);
+    background: rgba(232, 101, 10, 0.08);
+}
+
+.lang-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+.lang-name {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--text);
+}
+
+.lang-desc {
+    font-size: 11px;
+    color: var(--text2);
+    font-family: var(--mono);
+}
+
+.lang-close {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 10px 24px;
+    border-radius: 40px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+    margin-top: 8px;
+}
+
+.lang-close:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+@media (max-width: 500px) {
+    .lang-grid {
+        grid-template-columns: 1fr;
+    }
+    .lang-card {
+        padding: 32px 24px;
+    }
+}
+
 .hero-inner{max-width:800px;margin:0 auto;position:relative;z-index:2;}
 
 .hero-badge{
@@ -544,9 +664,9 @@ footer{
     <img src="logo.png" alt="ezLearnC" style="width:32px;height:32px;border-radius:8px;object-fit:contain;">
     <span class="nav-logo-text">ez<span>Learn</span>C</span>
   </a>
-  <a href="ezLearnC.html" class="nav-cta">
+  <button onclick="showLanguageSelector()" class="nav-cta">
     Open Dashboard <span>→</span>
-  </a>
+</button>
 </nav>
 
 <!-- HERO -->
@@ -776,6 +896,83 @@ document.querySelectorAll('.feature-card, .stat-item').forEach(el => {
   el.style.opacity = '0';
   observer.observe(el);
 });
+
+// Language selector functions
+function showLanguageSelector() {
+    document.getElementById('langOverlay').classList.add('active');
+}
+
+function closeLanguageSelector() {
+    document.getElementById('langOverlay').classList.remove('active');
+}
+
+function redirectToLanguage(lang) {
+    const files = {
+        'c': 'ezLearnC.html',      // Your existing C dashboard file
+        'cpp': 'ezLearnC++.html',   // Your C++ dashboard file
+        'java': '#',                // Replace with actual file when ready
+        'python': '#'               // Replace with actual file when ready
+    };
+    
+    const target = files[lang];
+    if (target && target !== '#') {
+        window.location.href = target;
+    } else if (target === '#') {
+        // Show coming soon message
+        alert(`${lang.toUpperCase()} course is coming soon! 🚀\nStay tuned for updates.`);
+        closeLanguageSelector();
+    }
+}
+
+// Close popup when clicking outside the card
+document.getElementById('langOverlay').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeLanguageSelector();
+    }
+});
+
+// Optional: Close with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeLanguageSelector();
+    }
+});
 </script>
+
+<!-- Language Selector Popup -->
+<div class="lang-overlay" id="langOverlay">
+    <div class="lang-card">
+        <h2>🎓 Choose Your Path</h2>
+        <p>Select the programming language you want to master</p>
+        
+        <div class="lang-grid">
+            <div class="lang-option" onclick="redirectToLanguage('c')">
+                <div class="lang-icon">⚡</div>
+                <div class="lang-name">C Programming</div>
+                <div class="lang-desc">29 topics · 290+ MCQs</div>
+            </div>
+            
+            <div class="lang-option" onclick="redirectToLanguage('cpp')">
+                <div class="lang-icon">🚀</div>
+                <div class="lang-name">C++ Programming</div>
+                <div class="lang-desc">35 topics · 350+ MCQs · OOP</div>
+            </div>
+            
+            <div class="lang-option" onclick="redirectToLanguage('java')">
+                <div class="lang-icon">☕</div>
+                <div class="lang-name">Java Programming</div>
+                <div class="lang-desc">Coming Soon</div>
+            </div>
+            
+            <div class="lang-option" onclick="redirectToLanguage('python')">
+                <div class="lang-icon">🐍</div>
+                <div class="lang-name">Python Programming</div>
+                <div class="lang-desc">Coming Soon</div>
+            </div>
+        </div>
+        
+        <button class="lang-close" onclick="closeLanguageSelector()">Close</button>
+    </div>
+</div>
 </body>
 </html>
