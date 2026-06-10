@@ -1,0 +1,1926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LrnToGo — C Programming Prep Platform</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue-deep:   #0a2342;
+    --blue-mid:    #1a4a8a;
+    --blue-light:  #2d6cc8;
+    --blue-pale:   #e8f0fb;
+    --blue-border: #b8cef0;
+    --white:       #ffffff;
+    --off-white:   #f7f9fd;
+    --text-dark:   #0a1a30;
+    --text-mid:    #2a3f5e;
+    --text-light:  #5a7499;
+    --correct:     #1a6640;
+    --incorrect:   #7a1a1a;
+    --correct-bg:  #e8f5ee;
+    --incorrect-bg:#fbeaea;
+    --font-main:   'Times New Roman', Times, serif;
+    --font-ui:     'Georgia', 'Times New Roman', serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-main);
+    background: var(--off-white);
+    color: var(--text-dark);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  /* ── TOPBAR ── */
+  #topbar {
+    background: var(--blue-deep);
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    height: 58px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-bottom: 2px solid var(--blue-mid);
+  }
+  .brand {
+    font-family: var(--font-ui);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--white);
+    text-transform: uppercase;
+  }
+  .brand span { color: #7aadff; }
+  .nav-tabs {
+    display: flex;
+    gap: 0;
+    height: 100%;
+  }
+  .nav-tab {
+    height: 100%;
+    padding: 0 22px;
+    background: none;
+    border: none;
+    color: #a0bce0;
+    font-family: var(--font-main);
+    font-size: 13.5px;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+    text-transform: uppercase;
+  }
+  .nav-tab:hover { color: var(--white); }
+  .nav-tab.active { color: var(--white); border-bottom-color: #7aadff; }
+
+  /* ── LAYOUT ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── HOME PAGE ── */
+  #home-page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 60px 40px;
+  }
+  .home-headline {
+    font-size: 38px;
+    font-weight: 700;
+    color: var(--blue-deep);
+    line-height: 1.2;
+    margin-bottom: 14px;
+    border-bottom: 2px solid var(--blue-border);
+    padding-bottom: 18px;
+  }
+  .home-sub {
+    font-size: 16px;
+    color: var(--text-mid);
+    margin-bottom: 44px;
+    max-width: 640px;
+  }
+  .home-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-bottom: 50px;
+  }
+  .home-card {
+    background: var(--white);
+    border: 1.5px solid var(--blue-border);
+    padding: 28px 24px;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .home-card:hover {
+    border-color: var(--blue-mid);
+    box-shadow: 0 4px 16px rgba(10,35,66,0.10);
+  }
+  .card-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--blue-light);
+    margin-bottom: 10px;
+    font-family: var(--font-ui);
+  }
+  .card-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--blue-deep);
+    margin-bottom: 8px;
+  }
+  .card-desc {
+    font-size: 13.5px;
+    color: var(--text-mid);
+    line-height: 1.55;
+  }
+  .card-count {
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--blue-light);
+    font-family: var(--font-ui);
+    letter-spacing: 0.5px;
+  }
+
+  /* ── SECTION TITLES ── */
+  .section-header {
+    background: var(--blue-deep);
+    color: var(--white);
+    padding: 32px 40px 28px;
+    margin-bottom: 0;
+  }
+  .section-header h1 {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .section-header p {
+    font-size: 13.5px;
+    color: #a0bce0;
+    font-family: var(--font-ui);
+  }
+
+  /* ── FLASHCARDS ── */
+  #flashcards-page { min-height: calc(100vh - 58px); }
+  .fc-layout {
+    display: flex;
+    height: calc(100vh - 58px - 88px);
+    overflow: hidden;
+  }
+  .fc-sidebar {
+    width: 220px;
+    min-width: 220px;
+    background: var(--white);
+    border-right: 1.5px solid var(--blue-border);
+    overflow-y: auto;
+    padding: 16px 0;
+  }
+  .fc-topic-btn {
+    width: 100%;
+    text-align: left;
+    padding: 11px 20px;
+    background: none;
+    border: none;
+    font-family: var(--font-main);
+    font-size: 13.5px;
+    color: var(--text-mid);
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .fc-topic-btn:hover { background: var(--blue-pale); }
+  .fc-topic-btn.active { border-left-color: var(--blue-light); background: var(--blue-pale); color: var(--blue-deep); font-weight: 700; }
+  .fc-sidebar-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-light);
+    padding: 10px 20px 4px;
+    font-family: var(--font-ui);
+  }
+
+  .fc-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    overflow-y: auto;
+    background: var(--off-white);
+  }
+  .fc-progress-bar-wrap {
+    width: 100%;
+    max-width: 620px;
+    height: 4px;
+    background: var(--blue-border);
+    margin-bottom: 28px;
+  }
+  .fc-progress-bar { height: 4px; background: var(--blue-mid); transition: width 0.3s; }
+  .fc-counter {
+    font-size: 12px;
+    color: var(--text-light);
+    margin-bottom: 20px;
+    letter-spacing: 0.5px;
+    font-family: var(--font-ui);
+    align-self: flex-start;
+    max-width: 620px;
+    width: 100%;
+  }
+
+  .fc-card-wrap {
+    width: 100%;
+    max-width: 620px;
+    perspective: 1200px;
+    margin-bottom: 28px;
+  }
+  .fc-card {
+    width: 100%;
+    min-height: 240px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(.4,0,.2,1);
+    cursor: pointer;
+  }
+  .fc-card.flipped { transform: rotateY(180deg); }
+  .fc-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    background: var(--white);
+    border: 1.5px solid var(--blue-border);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 36px 40px;
+    text-align: center;
+  }
+  .fc-face.back { transform: rotateY(180deg); background: var(--blue-deep); color: var(--white); border-color: var(--blue-mid); }
+  .fc-face-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--blue-light);
+    margin-bottom: 14px;
+    font-family: var(--font-ui);
+  }
+  .fc-face.back .fc-face-label { color: #7aadff; }
+  .fc-face-text {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--blue-deep);
+    line-height: 1.5;
+  }
+  .fc-face.back .fc-face-text { color: var(--white); font-size: 15px; font-weight: 400; }
+  .fc-face-hint {
+    margin-top: 18px;
+    font-size: 11.5px;
+    color: var(--text-light);
+    font-family: var(--font-ui);
+  }
+  .fc-face.back .fc-face-hint { color: #7aadff; }
+
+  .fc-controls {
+    display: flex;
+    gap: 12px;
+    max-width: 620px;
+    width: 100%;
+    justify-content: center;
+  }
+  .btn { font-family: var(--font-main); cursor: pointer; transition: background 0.15s, color 0.15s; }
+  .btn-outline {
+    padding: 9px 24px;
+    background: var(--white);
+    border: 1.5px solid var(--blue-mid);
+    color: var(--blue-mid);
+    font-size: 13.5px;
+  }
+  .btn-outline:hover { background: var(--blue-pale); }
+  .btn-primary {
+    padding: 9px 28px;
+    background: var(--blue-mid);
+    border: 1.5px solid var(--blue-mid);
+    color: var(--white);
+    font-size: 13.5px;
+  }
+  .btn-primary:hover { background: var(--blue-deep); border-color: var(--blue-deep); }
+
+  /* ── MCQ ── */
+  #mcq-page { min-height: calc(100vh - 58px); }
+  .mcq-layout { display: flex; height: calc(100vh - 58px - 88px); overflow: hidden; }
+  .mcq-sidebar {
+    width: 200px; min-width: 200px;
+    background: var(--white);
+    border-right: 1.5px solid var(--blue-border);
+    overflow-y: auto;
+    padding: 16px 0;
+  }
+  .mcq-test-btn {
+    width: 100%; text-align: left;
+    padding: 10px 18px;
+    background: none; border: none;
+    font-family: var(--font-main); font-size: 13px;
+    color: var(--text-mid); cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: background 0.15s;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .mcq-test-btn:hover { background: var(--blue-pale); }
+  .mcq-test-btn.active { border-left-color: var(--blue-light); background: var(--blue-pale); color: var(--blue-deep); font-weight: 700; }
+  .mcq-badge {
+    font-size: 10px; letter-spacing: 1px; padding: 2px 7px;
+    background: var(--blue-pale); color: var(--blue-mid); border: 1px solid var(--blue-border);
+    font-family: var(--font-ui);
+  }
+  .mcq-badge.done { background: #e8f5ee; color: var(--correct); border-color: #a8d5b8; }
+
+  .mcq-main {
+    flex: 1; overflow-y: auto;
+    padding: 40px;
+    background: var(--off-white);
+  }
+  .mcq-test-header {
+    border-bottom: 1.5px solid var(--blue-border);
+    padding-bottom: 18px; margin-bottom: 30px;
+  }
+  .mcq-test-header h2 { font-size: 20px; color: var(--blue-deep); }
+  .mcq-test-header p { font-size: 13px; color: var(--text-light); margin-top: 4px; font-family: var(--font-ui); }
+
+  .mcq-question {
+    background: var(--white);
+    border: 1.5px solid var(--blue-border);
+    padding: 24px 28px;
+    margin-bottom: 18px;
+  }
+  .mcq-q-num {
+    font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--blue-light); margin-bottom: 8px; font-family: var(--font-ui);
+  }
+  .mcq-q-text { font-size: 15px; font-weight: 600; color: var(--blue-deep); margin-bottom: 16px; line-height: 1.5; }
+  .mcq-code {
+    background: var(--blue-pale);
+    border-left: 3px solid var(--blue-mid);
+    padding: 10px 16px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: var(--blue-deep);
+    margin-bottom: 16px;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .mcq-options { display: flex; flex-direction: column; gap: 8px; }
+  .mcq-opt {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 14px;
+    border: 1.5px solid var(--blue-border);
+    background: var(--off-white);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    font-size: 14px; color: var(--text-dark);
+    text-align: left; width: 100%;
+    font-family: var(--font-main);
+  }
+  .mcq-opt:hover:not(:disabled) { background: var(--blue-pale); border-color: var(--blue-mid); }
+  .mcq-opt.selected { border-color: var(--blue-mid); background: var(--blue-pale); }
+  .mcq-opt.correct { border-color: var(--correct); background: var(--correct-bg); color: var(--correct); font-weight: 600; }
+  .mcq-opt.incorrect { border-color: var(--incorrect); background: var(--incorrect-bg); color: var(--incorrect); font-weight: 600; }
+  .mcq-opt:disabled { cursor: default; }
+  .mcq-opt-letter {
+    min-width: 22px; height: 22px;
+    border: 1.5px solid var(--blue-border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: var(--blue-mid);
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .mcq-explanation {
+    margin-top: 12px; padding: 12px 16px;
+    background: var(--blue-pale); border-left: 3px solid var(--blue-mid);
+    font-size: 13px; color: var(--text-mid); display: none; line-height: 1.6;
+  }
+  .mcq-explanation.show { display: block; }
+  .mcq-submit-row { margin-top: 28px; display: flex; gap: 12px; align-items: center; }
+  .mcq-score-banner {
+    display: none; padding: 18px 24px;
+    border: 1.5px solid var(--blue-border);
+    background: var(--white);
+    margin-bottom: 24px;
+  }
+  .mcq-score-banner.show { display: block; }
+  .mcq-score-big { font-size: 28px; font-weight: 700; color: var(--blue-deep); }
+  .mcq-score-label { font-size: 13px; color: var(--text-light); font-family: var(--font-ui); }
+
+  /* ── PROGRAMMING TEST ── */
+  #progtest-page { min-height: calc(100vh - 58px); }
+  .pt-container { max-width: 860px; margin: 0 auto; padding: 40px; }
+  .pt-header { border-bottom: 1.5px solid var(--blue-border); padding-bottom: 20px; margin-bottom: 32px; }
+  .pt-header h2 { font-size: 22px; color: var(--blue-deep); margin-bottom: 4px; }
+  .pt-header p { font-size: 13px; color: var(--text-light); font-family: var(--font-ui); }
+  .pt-question {
+    background: var(--white);
+    border: 1.5px solid var(--blue-border);
+    margin-bottom: 22px;
+    overflow: hidden;
+  }
+  .pt-q-bar {
+    background: var(--blue-deep);
+    padding: 12px 22px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .pt-q-title { font-size: 13.5px; font-weight: 700; color: var(--white); }
+  .pt-q-tag {
+    font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+    padding: 3px 10px; border: 1px solid rgba(255,255,255,0.3);
+    color: #a0bce0; font-family: var(--font-ui);
+  }
+  .pt-q-tag.hard { color: #ffb8b8; border-color: rgba(255,184,184,0.4); }
+  .pt-q-tag.medium { color: #ffe0a0; border-color: rgba(255,224,160,0.4); }
+  .pt-q-tag.easy { color: #a8d8b8; border-color: rgba(168,216,184,0.4); }
+  .pt-q-body { padding: 22px 24px; }
+  .pt-q-text { font-size: 14.5px; color: var(--text-dark); margin-bottom: 14px; line-height: 1.6; }
+  .pt-answer-toggle {
+    display: inline-block; margin-top: 12px;
+    background: none; border: 1.5px solid var(--blue-mid);
+    color: var(--blue-mid); padding: 7px 18px;
+    font-family: var(--font-main); font-size: 13px;
+    cursor: pointer; transition: background 0.15s, color 0.15s;
+  }
+  .pt-answer-toggle:hover { background: var(--blue-pale); }
+  .pt-answer-block {
+    display: none; margin-top: 16px;
+    border-top: 1.5px solid var(--blue-border);
+    padding-top: 16px;
+  }
+  .pt-answer-block.show { display: block; }
+  .pt-answer-label {
+    font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--blue-light); margin-bottom: 10px; font-family: var(--font-ui);
+  }
+  .pt-code {
+    background: var(--blue-deep); color: #c8deff;
+    padding: 16px 20px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px; line-height: 1.6;
+    white-space: pre; overflow-x: auto;
+  }
+  .pt-explanation {
+    margin-top: 12px; font-size: 13.5px; color: var(--text-mid);
+    background: var(--blue-pale); padding: 12px 16px;
+    border-left: 3px solid var(--blue-mid); line-height: 1.6;
+  }
+
+  /* ── CHECKLIST ── */
+  #checklist-page { min-height: calc(100vh - 58px); }
+  .cl-container { max-width: 780px; margin: 0 auto; padding: 40px; }
+  .cl-track {
+    background: var(--white);
+    border: 1.5px solid var(--blue-border);
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+  .cl-track-header {
+    background: var(--blue-deep); color: var(--white);
+    padding: 16px 24px; display: flex; justify-content: space-between; align-items: center;
+  }
+  .cl-track-title { font-size: 16px; font-weight: 700; }
+  .cl-track-pct { font-size: 14px; color: #7aadff; font-family: var(--font-ui); }
+  .cl-track-progress-bar {
+    height: 3px; background: var(--blue-mid);
+    transition: width 0.3s;
+  }
+  .cl-track-body { padding: 18px 24px; }
+  .cl-item {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 9px 0; border-bottom: 1px solid var(--blue-pale);
+    cursor: pointer;
+  }
+  .cl-item:last-child { border-bottom: none; }
+  .cl-cb {
+    width: 18px; height: 18px; min-width: 18px;
+    border: 1.5px solid var(--blue-mid);
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 2px; transition: background 0.15s;
+  }
+  .cl-cb.checked { background: var(--blue-mid); }
+  .cl-cb.checked::after { content: ''; display: block; width: 5px; height: 9px; border-right: 2px solid white; border-bottom: 2px solid white; transform: rotate(45deg) translateY(-1px); }
+  .cl-text { font-size: 14px; color: var(--text-dark); line-height: 1.5; }
+  .cl-text.checked { text-decoration: line-through; color: var(--text-light); }
+
+  .cl-complete-banner {
+    display: none;
+    background: var(--blue-deep); color: var(--white);
+    padding: 28px 36px; margin-bottom: 28px;
+    border: 2px solid var(--blue-mid);
+    text-align: center;
+  }
+  .cl-complete-banner.show { display: block; }
+  .cl-complete-banner h2 { font-size: 22px; margin-bottom: 8px; }
+  .cl-complete-banner p { font-size: 14px; color: #a0bce0; font-family: var(--font-ui); margin-bottom: 18px; }
+  .next-track-btn {
+    padding: 10px 30px;
+    background: var(--blue-light); border: none;
+    color: var(--white); font-family: var(--font-main);
+    font-size: 14px; font-weight: 700;
+    cursor: pointer; letter-spacing: 0.5px;
+    transition: background 0.15s;
+  }
+  .next-track-btn:hover { background: #1a5aaa; }
+
+  .overall-bar-wrap {
+    background: var(--white); border: 1.5px solid var(--blue-border);
+    padding: 22px 24px; margin-bottom: 32px;
+  }
+  .overall-bar-label { font-size: 13px; color: var(--text-mid); margin-bottom: 8px; font-family: var(--font-ui); }
+  .overall-bar-track { height: 10px; background: var(--blue-pale); border: 1px solid var(--blue-border); }
+  .overall-bar-fill { height: 100%; background: var(--blue-mid); transition: width 0.4s; }
+  .overall-pct { font-size: 22px; font-weight: 700; color: var(--blue-deep); margin-top: 6px; }
+
+  /* ── UTILS ── */
+  code {
+    font-family: 'Courier New', monospace;
+    background: var(--blue-pale);
+    padding: 1px 5px;
+    font-size: 13px;
+    color: var(--blue-deep);
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--off-white); }
+  ::-webkit-scrollbar-thumb { background: var(--blue-border); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--blue-mid); }
+
+  /* ── Filter tabs for MCQ ── */
+  .mcq-section-divider {
+    font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--text-light); padding: 10px 18px 4px;
+    font-family: var(--font-ui);
+  }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<nav id="topbar">
+  <div class="brand">Lrn<span>To</span>Go</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('home')">Overview</button>
+    <button class="nav-tab" onclick="showPage('flashcards')">Flashcards</button>
+    <button class="nav-tab" onclick="showPage('mcq')">MCQ Tests</button>
+    <button class="nav-tab" onclick="showPage('progtest')">Programming Test</button>
+    <button class="nav-tab" onclick="showPage('checklist')">Progress Checklist</button>
+  </div>
+</nav>
+
+<!-- ══════════════════ HOME ══════════════════ -->
+<div id="home-page" class="page active">
+  <div id="home-page-inner">
+    <div style="max-width:900px;margin:0 auto;padding:60px 40px;">
+      <p style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--blue-light);margin-bottom:12px;font-family:var(--font-ui);">C Programming — Structured Preparation</p>
+      <h1 class="home-headline">Master C Programming,<br>One Concept at a Time.</h1>
+      <p class="home-sub">LrnToGo is a structured self-study platform covering Arrays, Strings, Pointers, Functions, and Error Handling in C — with flashcards, MCQ tests, and programming exercises built for focused preparation.</p>
+
+      <div class="home-cards">
+        <div class="home-card" onclick="showPage('flashcards')">
+          <div class="card-label">Section 01</div>
+          <div class="card-title">Flashcards</div>
+          <div class="card-desc">Topic-wise flashcard decks covering definitions, syntax patterns, and common pitfalls in C programming.</div>
+          <div class="card-count">5 topics &nbsp;·&nbsp; 50 cards total</div>
+        </div>
+        <div class="home-card" onclick="showPage('mcq')">
+          <div class="card-label">Section 02</div>
+          <div class="card-title">MCQ Tests</div>
+          <div class="card-desc">Ten progressive tests — Tests 1–5 cover C basics, Tests 6–10 cover arrays, strings, pointers, functions, and error handling.</div>
+          <div class="card-count">10 tests &nbsp;·&nbsp; 100 questions</div>
+        </div>
+        <div class="home-card" onclick="showPage('progtest')">
+          <div class="card-label">Section 03</div>
+          <div class="card-title">Programming Test</div>
+          <div class="card-desc">Twenty programming challenges ranging from foundational to advanced, covering all core C topics with model solutions.</div>
+          <div class="card-count">20 questions &nbsp;·&nbsp; with solutions</div>
+        </div>
+      </div>
+
+      <div style="background:var(--white);border:1.5px solid var(--blue-border);padding:28px 32px;">
+        <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--blue-light);margin-bottom:14px;font-family:var(--font-ui);">Topics Covered</div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;">
+          <div style="padding:14px 16px;border:1px solid var(--blue-border);font-size:13.5px;color:var(--text-mid);">Arrays</div>
+          <div style="padding:14px 16px;border:1px solid var(--blue-border);font-size:13.5px;color:var(--text-mid);">Strings</div>
+          <div style="padding:14px 16px;border:1px solid var(--blue-border);font-size:13.5px;color:var(--text-mid);">Pointers</div>
+          <div style="padding:14px 16px;border:1px solid var(--blue-border);font-size:13.5px;color:var(--text-mid);">Functions</div>
+          <div style="padding:14px 16px;border:1px solid var(--blue-border);font-size:13.5px;color:var(--text-mid);">Error Handling</div>
+        </div>
+        <div style="margin-top:20px;font-size:13.5px;color:var(--text-mid);line-height:1.7;">
+          Begin with <strong>Flashcards</strong> to build conceptual clarity. Proceed to <strong>MCQ Tests</strong> to validate your understanding under timed conditions. Then attempt the <strong>Programming Test</strong> to apply your knowledge to real problems. Track everything in the <strong>Progress Checklist</strong>.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ FLASHCARDS ══════════════════ -->
+<div id="flashcards-page" class="page">
+  <div class="section-header">
+    <h1>Flashcards</h1>
+    <p>Click a card to reveal the answer. Use the navigation buttons to move between cards.</p>
+  </div>
+  <div class="fc-layout">
+    <div class="fc-sidebar">
+      <div class="fc-sidebar-label">Topics</div>
+      <button class="fc-topic-btn active" onclick="loadTopic(0)">Arrays</button>
+      <button class="fc-topic-btn" onclick="loadTopic(1)">Strings</button>
+      <button class="fc-topic-btn" onclick="loadTopic(2)">Pointers</button>
+      <button class="fc-topic-btn" onclick="loadTopic(3)">Functions</button>
+      <button class="fc-topic-btn" onclick="loadTopic(4)">Error Handling</button>
+    </div>
+    <div class="fc-main">
+      <div class="fc-counter" id="fc-counter">Card 1 of 10</div>
+      <div class="fc-progress-bar-wrap"><div class="fc-progress-bar" id="fc-progress-bar" style="width:10%"></div></div>
+      <div class="fc-card-wrap">
+        <div class="fc-card" id="fc-card" onclick="flipCard()">
+          <div class="fc-face front">
+            <div class="fc-face-label">Question</div>
+            <div class="fc-face-text" id="fc-front-text"></div>
+            <div class="fc-face-hint">Click to reveal answer</div>
+          </div>
+          <div class="fc-face back">
+            <div class="fc-face-label">Answer</div>
+            <div class="fc-face-text" id="fc-back-text"></div>
+            <div class="fc-face-hint">Click to flip back</div>
+          </div>
+        </div>
+      </div>
+      <div class="fc-controls">
+        <button class="btn btn-outline" onclick="prevCard()">Previous</button>
+        <button class="btn btn-outline" onclick="shuffleDeck()">Shuffle</button>
+        <button class="btn btn-primary" onclick="nextCard()">Next Card</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ MCQ ══════════════════ -->
+<div id="mcq-page" class="page">
+  <div class="section-header">
+    <h1>MCQ Tests</h1>
+    <p>Tests 1–5 cover C fundamentals. Tests 6–10 cover Arrays, Strings, Pointers, Functions, and Error Handling.</p>
+  </div>
+  <div class="mcq-layout">
+    <div class="mcq-sidebar" id="mcq-sidebar"></div>
+    <div class="mcq-main" id="mcq-main"></div>
+  </div>
+</div>
+
+<!-- ══════════════════ PROGRAMMING TEST ══════════════════ -->
+<div id="progtest-page" class="page">
+  <div class="section-header">
+    <h1>Programming Test</h1>
+    <p>Twenty programming questions. Attempt each problem before revealing the model solution.</p>
+  </div>
+  <div class="pt-container" id="pt-container"></div>
+</div>
+
+<!-- ══════════════════ CHECKLIST ══════════════════ -->
+<div id="checklist-page" class="page">
+  <div class="section-header">
+    <h1>Progress Checklist</h1>
+    <p>Track your preparation across all sections. When every item is marked complete, you are ready to advance.</p>
+  </div>
+  <div class="cl-container">
+    <div class="overall-bar-wrap">
+      <div class="overall-bar-label">Overall Completion</div>
+      <div class="overall-bar-track"><div class="overall-bar-fill" id="overall-bar-fill" style="width:0%"></div></div>
+      <div class="overall-pct" id="overall-pct">0%</div>
+    </div>
+    <div class="cl-complete-banner" id="cl-complete-banner">
+      <h2>C Programming — Preparation Complete</h2>
+      <p>You have completed all preparation checkpoints for C programming. You are ready to advance to the next language track.</p>
+      <button class="next-track-btn" onclick="alert('SQL track coming soon on LrnToGo.')">Advance to SQL &rarr;</button>
+    </div>
+    <div id="cl-tracks"></div>
+  </div>
+</div>
+
+<script>
+// ══════════════ NAVIGATION ══════════════
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(name + '-page').classList.add('active');
+  const tabs = document.querySelectorAll('.nav-tab');
+  const map = { home: 0, flashcards: 1, mcq: 2, progtest: 3, checklist: 4 };
+  if (map[name] !== undefined) tabs[map[name]].classList.add('active');
+  if (name === 'mcq' && !mcqInitialized) initMCQ();
+  if (name === 'progtest' && !ptInitialized) initProgTest();
+  if (name === 'checklist') renderChecklist();
+}
+
+// ══════════════ FLASHCARD DATA ══════════════
+const flashcardData = [
+  { topic: 'Arrays', cards: [
+    { q: 'What is an array in C?', a: 'A collection of elements of the same data type stored in contiguous memory locations, accessed via an index starting from 0.' },
+    { q: 'How do you declare a one-dimensional array in C?', a: 'Syntax: data_type array_name[size]; — Example: int marks[10]; declares an integer array of 10 elements.' },
+    { q: 'What is the index of the last element in an array of size n?', a: 'n − 1. Arrays in C are zero-indexed, so an array of size n has valid indices 0 through n − 1.' },
+    { q: 'What happens when you access an array element out of bounds?', a: 'Undefined behaviour. C does not perform bounds checking. It may produce garbage values, corrupt memory, or crash the program.' },
+    { q: 'How do you declare and initialise an array in one statement?', a: 'int arr[] = {1, 2, 3, 4, 5}; — The compiler determines the size automatically from the initialiser list.' },
+    { q: 'What is a two-dimensional array? Give the declaration syntax.', a: 'A matrix of elements. Declaration: int matrix[rows][cols]; — Example: int grid[3][4]; is a 3-row, 4-column integer array.' },
+    { q: 'How are two-dimensional arrays stored in memory?', a: 'In row-major order — the elements of the first row are stored first, then the second row, and so on, in contiguous memory.' },
+    { q: 'Can you pass an array to a function in C?', a: 'Yes. Arrays decay to pointers when passed to functions. The function receives the base address. The size is usually passed as a separate argument.' },
+    { q: 'What is the relationship between array names and pointers?', a: 'An array name is a constant pointer to the first element. arr and &arr[0] both represent the base address of the array.' },
+    { q: 'How do you find the number of elements in an array using sizeof?', a: 'int n = sizeof(arr) / sizeof(arr[0]); — This works only when arr is in scope and has not decayed to a pointer.' },
+  ]},
+  { topic: 'Strings', cards: [
+    { q: 'How are strings represented in C?', a: 'As null-terminated character arrays. Every string ends with the null character \\0, which signals the end of the string.' },
+    { q: 'What is the correct way to declare a string in C?', a: 'char name[20]; declares a character array. You may initialise it as char name[] = "Alice"; — the compiler adds \\0 automatically.' },
+    { q: 'What does strlen() return?', a: 'The number of characters in a string excluding the null terminator. Defined in <string.h>.' },
+    { q: 'What is the difference between strcpy() and strncpy()?', a: 'strcpy() copies the entire source string including \\0 with no length limit, which risks overflow. strncpy() copies at most n characters, which is safer.' },
+    { q: 'What does strcmp() return when two strings are equal?', a: '0. It returns a negative value if the first string is lexicographically less, and a positive value if greater.' },
+    { q: 'What does strcat() do?', a: 'Appends the source string to the end of the destination string, overwriting the null terminator of the destination. The destination must have sufficient space.' },
+    { q: 'What is the purpose of sprintf()?', a: 'Formats data and writes the result as a string into a character buffer, similar to printf() but targeting a char array instead of stdout.' },
+    { q: 'What is the difference between a string literal and a character array?', a: 'String literals are stored in read-only memory and must not be modified. Character arrays (char arr[] = "...") are mutable copies on the stack.' },
+    { q: 'How does strtok() work?', a: 'It tokenises a string by replacing delimiter characters with \\0 in-place. Subsequent calls with NULL as the first argument continue from the last position.' },
+    { q: 'What header file must be included for string functions?', a: '#include <string.h> — This header provides strlen, strcpy, strncpy, strcmp, strcat, strtok, strstr, and related functions.' },
+  ]},
+  { topic: 'Pointers', cards: [
+    { q: 'What is a pointer in C?', a: 'A variable that stores the memory address of another variable. Declared with an asterisk: int *p; — p holds the address of an integer.' },
+    { q: 'What are the two fundamental pointer operators in C?', a: '& (address-of operator) returns the address of a variable. * (dereference operator) accesses the value at the stored address.' },
+    { q: 'What is a NULL pointer?', a: 'A pointer that stores the value 0 (or NULL), indicating it does not point to any valid memory location. Dereferencing a NULL pointer causes undefined behaviour.' },
+    { q: 'What is pointer arithmetic?', a: 'When you increment a pointer by 1, it advances by sizeof(pointed_type) bytes, not by 1 byte. This allows traversal through arrays efficiently.' },
+    { q: 'What is a dangling pointer?', a: 'A pointer that references memory that has been freed or is no longer valid. Accessing it leads to undefined behaviour. Set pointers to NULL after freeing.' },
+    { q: 'What is a void pointer (void *)?', a: 'A generic pointer that can hold the address of any data type. It must be cast to a specific type before dereferencing.' },
+    { q: 'What is a pointer to a pointer? How is it declared?', a: 'A variable that stores the address of another pointer. Declared with double asterisk: int **pp; — used in dynamic 2D arrays and modifying pointer arguments.' },
+    { q: 'How do pointers and arrays relate in C?', a: 'Array names decay to pointers to the first element. arr[i] is equivalent to *(arr + i). Pointer arithmetic can traverse arrays.' },
+    { q: 'What is a function pointer?', a: 'A pointer that stores the address of a function. Declared as: return_type (*fp)(param_types); — enables callbacks and function dispatch tables.' },
+    { q: 'What is the difference between malloc() and calloc()?', a: 'malloc(n) allocates n bytes of uninitialised memory. calloc(count, size) allocates count * size bytes and zero-initialises all of it.' },
+  ]},
+  { topic: 'Functions', cards: [
+    { q: 'What is a function in C?', a: 'A named, reusable block of code that performs a specific task. It has a return type, a name, a parameter list, and a body.' },
+    { q: 'What is a function prototype (forward declaration)?', a: 'A declaration of a function before its definition, telling the compiler the return type and parameter types. Allows calls before the full definition appears.' },
+    { q: 'What is the difference between pass-by-value and pass-by-reference in C?', a: 'C passes arguments by value — the function receives a copy. To simulate pass-by-reference, pass a pointer to the variable so the function can modify the original.' },
+    { q: 'What does the return statement do?', a: 'It exits the current function and optionally passes a value back to the caller. A void function may use return; with no value.' },
+    { q: 'What is a recursive function?', a: 'A function that calls itself. It requires a base case to stop recursion; without it, the function recurses indefinitely causing a stack overflow.' },
+    { q: 'What is a static variable inside a function?', a: 'A variable declared with the static keyword that retains its value between function calls. It is initialised once and persists for the lifetime of the program.' },
+    { q: 'What does the inline keyword suggest to the compiler?', a: 'It suggests the compiler replace the function call with the actual function body at the call site, potentially reducing call overhead for small, frequently used functions.' },
+    { q: 'What are variadic functions in C?', a: 'Functions that accept a variable number of arguments. They use ..., the va_list type, and macros va_start, va_arg, and va_end from <stdarg.h>.' },
+    { q: 'What is the scope of a local variable?', a: 'A local variable is scoped to the block in which it is declared. It is created when the block is entered and destroyed when the block exits.' },
+    { q: 'What is the call stack and how do function calls use it?', a: 'A region of memory managing active function calls. Each call pushes a stack frame containing local variables, parameters, and the return address. It is popped on return.' },
+  ]},
+  { topic: 'Error Handling', cards: [
+    { q: 'How does C handle runtime errors?', a: 'C has no built-in exception mechanism. Errors are communicated via return values, the global errno variable, and manual checks by the programmer.' },
+    { q: 'What is errno?', a: 'A global integer variable set by system calls and library functions to indicate the nature of an error. Include <errno.h> to use it.' },
+    { q: 'What does perror() do?', a: 'Prints a descriptive error message to stderr based on the current value of errno, prefixed with the string you provide.' },
+    { q: 'What does strerror() return?', a: 'A human-readable string describing the error code passed to it. Defined in <string.h>. Example: strerror(errno) returns the current error description.' },
+    { q: 'What is the significance of a function returning -1 or NULL?', a: 'Many C library functions return -1 (for integers) or NULL (for pointers) to signal failure. The programmer must check these return values and inspect errno.' },
+    { q: 'What is the assert() macro used for?', a: 'Defined in <assert.h>, it evaluates an expression and aborts the program with a diagnostic message if the expression is false. Used for development-time checks.' },
+    { q: 'What is the difference between assert() and regular error checks?', a: 'assert() is for programmer errors that should never occur in correct code and can be disabled in release builds. Regular error checks handle expected runtime conditions.' },
+    { q: 'How do you handle file operation errors in C?', a: 'Check if fopen() returns NULL before reading or writing. After operations, use ferror() to detect stream errors and feof() to detect end-of-file.' },
+    { q: 'What is setjmp/longjmp and when is it used?', a: 'setjmp saves the execution context; longjmp restores it, simulating non-local jumps. Used sparingly as a rudimentary error-recovery mechanism, with careful attention to stack state.' },
+    { q: 'What common undefined behaviours should you guard against in C?', a: 'Integer overflow (use bounds checks), null pointer dereference (check before use), out-of-bounds array access (validate indices), and use-after-free (NULL out freed pointers).' },
+  ]}
+];
+
+let currentTopic = 0;
+let currentCard = 0;
+let currentDeck = [];
+
+function loadTopic(idx) {
+  currentTopic = idx;
+  currentCard = 0;
+  currentDeck = [...flashcardData[idx].cards];
+  document.querySelectorAll('.fc-topic-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+  renderCard();
+}
+
+function renderCard() {
+  const card = document.getElementById('fc-card');
+  card.classList.remove('flipped');
+  const deck = currentDeck;
+  document.getElementById('fc-front-text').textContent = deck[currentCard].q;
+  document.getElementById('fc-back-text').textContent = deck[currentCard].a;
+  document.getElementById('fc-counter').textContent = `Card ${currentCard + 1} of ${deck.length}`;
+  document.getElementById('fc-progress-bar').style.width = ((currentCard + 1) / deck.length * 100) + '%';
+}
+
+function flipCard() {
+  document.getElementById('fc-card').classList.toggle('flipped');
+}
+
+function nextCard() {
+  if (currentCard < currentDeck.length - 1) { currentCard++; renderCard(); }
+  else { currentCard = 0; renderCard(); }
+}
+
+function prevCard() {
+  if (currentCard > 0) { currentCard--; renderCard(); }
+}
+
+function shuffleDeck() {
+  for (let i = currentDeck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [currentDeck[i], currentDeck[j]] = [currentDeck[j], currentDeck[i]];
+  }
+  currentCard = 0;
+  renderCard();
+}
+
+loadTopic(0);
+
+// ══════════════ MCQ DATA ══════════════
+const mcqTests = [
+  {
+    id: 1, title: 'Test 1: C Basics — Data Types & Variables',
+    category: 'C Basics',
+    questions: [
+      {
+        q: 'Which of the following is the correct size of int on a 32-bit system?',
+        options: ['1 byte', '2 bytes', '4 bytes', '8 bytes'],
+        answer: 2,
+        explanation: 'On most 32-bit and 64-bit systems, int is 4 bytes (32 bits). The exact size is implementation-defined but guaranteed to be at least 2 bytes by the C standard.'
+      },
+      {
+        q: 'Which format specifier is used for printing a float with printf()?',
+        options: ['%d', '%s', '%f', '%c'],
+        answer: 2,
+        explanation: '%f is used for float and double values. %d is for integers, %s for strings, and %c for characters.'
+      },
+      {
+        q: 'What is the output of: printf("%d", 10 / 3);',
+        options: ['3.33', '3', '4', 'Undefined'],
+        answer: 1,
+        explanation: 'Integer division in C truncates the decimal part. 10 / 3 = 3 (not 3.33), because both operands are integers.'
+      },
+      {
+        q: 'Which keyword is used to define a constant value in C?',
+        options: ['constant', 'var', 'const', '#define only'],
+        answer: 2,
+        explanation: 'The const keyword makes a variable read-only. #define also creates constants as macros, but const is the keyword. Both are valid approaches.'
+      },
+      {
+        q: 'What is the scope of a variable declared inside a block { }?',
+        options: ['Global', 'Program-wide', 'File-level', 'Local to that block'],
+        answer: 3,
+        explanation: 'A variable declared inside a block is local to that block. It is created when execution enters the block and destroyed when it exits.'
+      },
+      {
+        q: 'What does the following declaration mean: unsigned int x;',
+        options: ['x can hold negative values', 'x uses more memory', 'x can only hold non-negative values', 'x is a floating point number'],
+        answer: 2,
+        explanation: 'unsigned int cannot hold negative values. On a 32-bit system it ranges from 0 to 4,294,967,295, effectively doubling the positive range.'
+      },
+      {
+        q: 'What is the value of sizeof(char) in C?',
+        options: ['2', '4', '1', 'Platform-dependent'],
+        answer: 2,
+        explanation: 'sizeof(char) is always 1 in C by definition in the C standard, regardless of platform. A char is exactly one byte.'
+      },
+      {
+        q: 'Which of the following correctly initialises a variable in C?',
+        code: 'int x = 5;\nfloat y = 3.14;\nchar c = \'A\';\ndouble d = 2.7;',
+        options: ['All of the above are correct', 'Only int x = 5 is correct', 'char c must use double quotes', 'float y should be 3.14f'],
+        answer: 0,
+        explanation: 'All four declarations are syntactically valid. float y = 3.14 works with implicit conversion from double. char literals use single quotes.'
+      },
+      {
+        q: 'What is the output of: printf("%c", 65);',
+        options: ['65', 'A', 'Error', 'a'],
+        answer: 1,
+        explanation: 'ASCII value 65 corresponds to the character \'A\'. %c interprets the integer as its ASCII equivalent.'
+      },
+      {
+        q: 'What is auto storage class in C?',
+        options: ['Variables stored in registers', 'Default local variable storage class', 'Global variables', 'Variables with indefinite lifetime'],
+        answer: 1,
+        explanation: 'auto is the default storage class for local variables. It means the variable is automatically created and destroyed with its block. Rarely written explicitly.'
+      }
+    ]
+  },
+  {
+    id: 2, title: 'Test 2: C Basics — Operators & Expressions',
+    category: 'C Basics',
+    questions: [
+      {
+        q: 'What is the result of 5 % 3 in C?',
+        options: ['1', '2', '1.67', '0'],
+        answer: 1,
+        explanation: '% is the modulo operator. 5 divided by 3 is 1 remainder 2, so 5 % 3 = 2.'
+      },
+      {
+        q: 'What does the expression x++ mean?',
+        options: ['Decrement x then use it', 'Use x then increment x by 1', 'Increment x then use it', 'Multiply x by 2'],
+        answer: 1,
+        explanation: 'x++ is the post-increment operator. It uses the current value of x in the expression, then increments x by 1 afterwards.'
+      },
+      {
+        q: 'What is the value of x after: int x = 10; x += 5;',
+        options: ['10', '5', '15', '50'],
+        answer: 2,
+        explanation: 'x += 5 is equivalent to x = x + 5. Starting from 10, the result is 15.'
+      },
+      {
+        q: 'Which operator is used for logical AND in C?',
+        options: ['&', 'AND', '&&', '||'],
+        answer: 2,
+        explanation: '&& is the logical AND operator. & is the bitwise AND operator — a common source of bugs when the two are confused.'
+      },
+      {
+        q: 'What does the ternary operator ?: do?',
+        options: ['Performs bitwise operations', 'Evaluates a condition and returns one of two values', 'Compares three values', 'Divides a value into thirds'],
+        answer: 1,
+        explanation: 'Syntax: condition ? value_if_true : value_if_false. It is a compact alternative to an if-else expression.'
+      },
+      {
+        q: 'What is the result of !0 in C?',
+        options: ['0', '-1', '1', 'Undefined'],
+        answer: 2,
+        explanation: '! is the logical NOT operator. In C, 0 is false. !0 evaluates to 1 (true).'
+      },
+      {
+        q: 'What does the bitwise left shift operator << do?',
+        options: ['Moves digits left in a string', 'Shifts bits left, equivalent to multiplying by 2 per shift', 'Compares two integers', 'Performs integer division'],
+        answer: 1,
+        explanation: 'x << n shifts the bits of x left by n positions. Each left shift by 1 is equivalent to multiplying by 2 (for non-overflowing positive integers).'
+      },
+      {
+        q: 'What is the associativity of the assignment operator = in C?',
+        options: ['Left-to-right', 'Right-to-left', 'Non-associative', 'Depends on data type'],
+        answer: 1,
+        explanation: 'Assignment operators are right-to-left associative. This means a = b = c is evaluated as a = (b = c).'
+      },
+      {
+        q: 'What is the output of: printf("%d", 2 + 3 * 4);',
+        options: ['20', '14', '24', '11'],
+        answer: 1,
+        explanation: 'Operator precedence: multiplication before addition. 3 * 4 = 12, then 2 + 12 = 14.'
+      },
+      {
+        q: 'Which of the following correctly tests if x is between 1 and 10 inclusive?',
+        options: ['1 <= x <= 10', 'x > 1 && x < 10', 'x >= 1 && x <= 10', '1 <= x AND x <= 10'],
+        answer: 2,
+        explanation: 'x >= 1 && x <= 10 is correct. The expression 1 <= x <= 10 does not work as expected in C — it is evaluated as (1 <= x) <= 10, which is almost always true.'
+      }
+    ]
+  },
+  {
+    id: 3, title: 'Test 3: C Basics — Control Flow',
+    category: 'C Basics',
+    questions: [
+      {
+        q: 'What is the output of the following code?\nint x = 5;\nif (x > 3)\n  printf("A");\nelse\n  printf("B");',
+        options: ['B', 'A', 'AB', 'Nothing'],
+        answer: 1,
+        explanation: 'x = 5, which is greater than 3, so the if-branch executes and prints "A".'
+      },
+      {
+        q: 'How many times does the following loop execute?\nfor (int i = 0; i < 5; i++) { }',
+        options: ['4', '5', '6', 'Infinite'],
+        answer: 1,
+        explanation: 'The loop runs for i = 0, 1, 2, 3, 4 — five iterations total.'
+      },
+      {
+        q: 'What is the difference between while and do-while loops?',
+        options: ['while is faster', 'do-while always executes the body at least once', 'while allows break, do-while does not', 'There is no difference'],
+        answer: 1,
+        explanation: 'A do-while loop checks the condition after executing the body, guaranteeing at least one execution. A while loop checks the condition first.'
+      },
+      {
+        q: 'What does the break statement do inside a loop?',
+        options: ['Skips to the next iteration', 'Exits the entire loop immediately', 'Terminates the program', 'Restarts the loop'],
+        answer: 1,
+        explanation: 'break exits the innermost loop (or switch) immediately, transferring control to the statement following the loop.'
+      },
+      {
+        q: 'What does continue do inside a loop?',
+        options: ['Exits the loop', 'Skips the remaining statements in the current iteration and proceeds to the next', 'Restarts the loop from the beginning', 'Pauses execution'],
+        answer: 1,
+        explanation: 'continue skips the rest of the current iteration and jumps to the loop\'s condition check (or increment in a for-loop).'
+      },
+      {
+        q: 'What must each case in a switch statement end with to prevent fall-through?',
+        options: ['end', 'return', 'break', 'exit'],
+        answer: 2,
+        explanation: 'Without break, execution falls through to the next case. break exits the switch block after the matched case executes.'
+      },
+      {
+        q: 'What is an infinite loop in C?',
+        options: ['A loop that runs exactly once', 'A loop that runs for INT_MAX iterations', 'A loop whose condition is always true, running indefinitely', 'A loop that cannot be compiled'],
+        answer: 2,
+        explanation: 'for(;;) and while(1) are common infinite loops. They require an internal break or return to terminate.'
+      },
+      {
+        q: 'What is the output of: for(int i=1; i<=3; i++) printf("%d ", i);',
+        options: ['0 1 2', '1 2 3', '1 2 3 4', '0 1 2 3'],
+        answer: 1,
+        explanation: 'The loop starts at i=1 and runs while i<=3, printing 1, 2, and 3.'
+      },
+      {
+        q: 'Which statement is true about goto in C?',
+        options: ['goto is not part of C', 'goto is required for loops', 'goto causes an unconditional jump to a labelled statement', 'goto is always undefined behaviour'],
+        answer: 2,
+        explanation: 'goto transfers control to a labelled statement in the same function. It is valid C but considered poor practice as it harms readability and maintainability.'
+      },
+      {
+        q: 'What does the following evaluate to: (0 == 0) ? "yes" : "no"',
+        options: ['"no"', 'Error', '"yes"', '0'],
+        answer: 2,
+        explanation: '0 == 0 is true (evaluates to 1), so the ternary returns "yes".'
+      }
+    ]
+  },
+  {
+    id: 4, title: 'Test 4: C Basics — Memory & Storage',
+    category: 'C Basics',
+    questions: [
+      {
+        q: 'What does malloc() return if memory allocation fails?',
+        options: ['0', '-1', 'NULL', 'It throws an exception'],
+        answer: 2,
+        explanation: 'malloc() returns NULL when it cannot allocate the requested memory. Always check for NULL before using the returned pointer.'
+      },
+      {
+        q: 'Which function frees dynamically allocated memory in C?',
+        options: ['delete()', 'dealloc()', 'free()', 'release()'],
+        answer: 2,
+        explanation: 'free() releases memory previously allocated by malloc(), calloc(), or realloc(). Calling free() on a NULL pointer is safe and does nothing.'
+      },
+      {
+        q: 'What is a memory leak?',
+        options: ['Writing beyond array bounds', 'Accessing freed memory', 'Allocated memory that is never freed', 'Reading uninitialised memory'],
+        answer: 2,
+        explanation: 'A memory leak occurs when dynamically allocated memory is no longer needed but is never freed, causing the program\'s memory usage to grow over time.'
+      },
+      {
+        q: 'Where are local variables stored in memory?',
+        options: ['Heap', 'Stack', 'Data segment', 'Code segment'],
+        answer: 1,
+        explanation: 'Local variables are allocated on the stack. They are automatically created when a function is called and destroyed when it returns.'
+      },
+      {
+        q: 'What is the difference between stack and heap memory?',
+        options: ['Stack is for global variables, heap for local', 'Stack is automatic (managed by the compiler), heap is manual (managed by the programmer)', 'Heap is faster than stack', 'Stack supports dynamic allocation'],
+        answer: 1,
+        explanation: 'Stack allocation and deallocation is handled automatically via function calls and returns. Heap allocation requires explicit malloc/free calls by the programmer.'
+      },
+      {
+        q: 'What does the static keyword do when applied to a global variable?',
+        options: ['Makes it constant', 'Restricts its visibility to the current file (internal linkage)', 'Moves it to the stack', 'Makes it thread-safe'],
+        answer: 1,
+        explanation: 'A static global variable has internal linkage — it is not accessible from other translation units, providing file-level encapsulation.'
+      },
+      {
+        q: 'What is the register storage class?',
+        options: ['Stores the variable in a file', 'Suggests the compiler store the variable in a CPU register for faster access', 'Makes the variable global', 'Disables optimisation for that variable'],
+        answer: 1,
+        explanation: 'register hints to the compiler to store the variable in a CPU register. The compiler may ignore the hint. You cannot take the address of a register variable.'
+      },
+      {
+        q: 'What is the extern keyword used for?',
+        options: ['Declaring an external function library', 'Declaring that a variable is defined in another translation unit', 'Making a variable read-only', 'Allocating memory externally'],
+        answer: 1,
+        explanation: 'extern tells the compiler that a variable or function is defined elsewhere (usually another .c file). It does not allocate storage — it declares an existing symbol.'
+      },
+      {
+        q: 'What is realloc() used for?',
+        options: ['Freeing and reallocating in one call', 'Resizing a previously allocated memory block', 'Copying memory blocks', 'Allocating zero-initialised memory'],
+        answer: 1,
+        explanation: 'realloc() resizes an existing allocation. If the new size is larger, the original contents are preserved. The returned pointer may differ from the input pointer.'
+      },
+      {
+        q: 'What is the BSS segment in a C program?',
+        options: ['Binary Source Storage', 'The segment for uninitialised global and static variables, zero-filled at runtime', 'The stack segment', 'The code/text segment'],
+        answer: 1,
+        explanation: 'BSS (Block Started by Symbol) stores global and static variables that are not explicitly initialised. The OS zero-fills this segment at program start.'
+      }
+    ]
+  },
+  {
+    id: 5, title: 'Test 5: C Basics — Input/Output & Preprocessor',
+    category: 'C Basics',
+    questions: [
+      {
+        q: 'What is the correct way to read an integer from stdin?',
+        options: ['cin >> x;', 'read(x);', 'scanf("%d", &x);', 'input(x);'],
+        answer: 2,
+        explanation: 'scanf() reads formatted input. Note the & (address-of) operator — scanf needs the address of x to write the value into it.'
+      },
+      {
+        q: 'What does fprintf(stderr, ...) do?',
+        options: ['Prints to a file named "stderr"', 'Writes formatted output to the standard error stream', 'Formats a string without printing', 'Is identical to printf'],
+        answer: 1,
+        explanation: 'stderr is the standard error stream. fprintf(stderr, ...) writes error messages separately from normal output (stdout), useful for diagnostics.'
+      },
+      {
+        q: 'What is the purpose of #define in C?',
+        options: ['Declares a variable', 'Includes a header file', 'Creates a macro that is textually substituted by the preprocessor', 'Defines a data type'],
+        answer: 2,
+        explanation: '#define creates a macro. Before compilation, the preprocessor replaces every occurrence of the macro name with its definition throughout the source file.'
+      },
+      {
+        q: 'What is a header guard (#ifndef / #define / #endif) used for?',
+        options: ['Encrypting header files', 'Preventing multiple inclusion of the same header file', 'Defining type aliases', 'Speeding up compilation'],
+        answer: 1,
+        explanation: 'Header guards prevent the contents of a header file from being included more than once in a translation unit, avoiding duplicate declarations.'
+      },
+      {
+        q: 'Which function reads a line from stdin into a buffer safely?',
+        options: ['gets()', 'scanf("%s")', 'fgets()', 'read()'],
+        answer: 2,
+        explanation: 'fgets() reads up to n-1 characters, preventing buffer overflow. gets() is deprecated and dangerous because it performs no bounds checking.'
+      },
+      {
+        q: 'What does #include <stdio.h> do?',
+        options: ['Links the stdio library', 'Defines the main function', 'Inserts the contents of stdio.h into the source file at that point', 'Imports I/O classes'],
+        answer: 2,
+        explanation: 'The preprocessor replaces #include directives with the full contents of the specified header file before compilation begins.'
+      },
+      {
+        q: 'What is the difference between #include <file.h> and #include "file.h"?',
+        options: ['No difference', '<file.h> includes system headers; "file.h" searches the current directory first', '"file.h" is for C++ only', '<file.h> is for macros only'],
+        answer: 1,
+        explanation: 'Angle brackets search the system include path. Double quotes first search the current directory, then fall back to system paths.'
+      },
+      {
+        q: 'What does fflush(stdout) do?',
+        options: ['Closes stdout', 'Clears the terminal screen', 'Forces any buffered output to be written immediately', 'Resets the output pointer'],
+        answer: 2,
+        explanation: 'stdout is often line-buffered or fully buffered. fflush() forces the buffer to be written to the underlying device immediately.'
+      },
+      {
+        q: 'What does the scanf return value indicate?',
+        options: ['The number of characters read', 'The number of items successfully matched and assigned', 'Always 1 on success', '0 on success, -1 on error'],
+        answer: 1,
+        explanation: 'scanf returns the number of items successfully read and assigned. Always check the return value to detect malformed input.'
+      },
+      {
+        q: 'What is a macro with parameters called?',
+        options: ['Inline function', 'Function-like macro', 'Parameterised variable', 'Template macro'],
+        answer: 1,
+        explanation: 'A macro that takes arguments is called a function-like macro. Example: #define MAX(a, b) ((a) > (b) ? (a) : (b)). Parenthesise all arguments to avoid precedence issues.'
+      }
+    ]
+  },
+  {
+    id: 6, title: 'Test 6: Arrays — Intermediate',
+    category: 'Advanced Topics',
+    questions: [
+      {
+        q: 'What is the output?\nint arr[3] = {10, 20, 30};\nprintf("%d", *(arr + 1));',
+        options: ['10', '20', '30', 'Address'],
+        answer: 1,
+        explanation: 'arr is a pointer to the first element. arr + 1 points to arr[1]. Dereferencing it with * gives 20.'
+      },
+      {
+        q: 'Which sorting algorithm has the best average-case time complexity for sorting an array?',
+        options: ['Bubble sort O(n²)', 'Quick sort O(n log n)', 'Insertion sort O(n²)', 'Selection sort O(n²)'],
+        answer: 1,
+        explanation: 'Quick sort has an average-case time complexity of O(n log n), making it the most efficient of the listed options for large datasets in practice.'
+      },
+      {
+        q: 'What is the correct way to pass a 2D array to a function?',
+        options: ['void f(int arr[][])', 'void f(int **arr)', 'void f(int arr[][COLS])', 'void f(int *arr[])'],
+        answer: 2,
+        explanation: 'When passing a 2D array, the column dimension must be specified so the compiler knows the row stride. The row dimension can be omitted.'
+      },
+      {
+        q: 'What does the following code output?\nint arr[] = {1,2,3,4,5};\nint *p = arr;\nprintf("%d", p[2]);',
+        options: ['1', '2', '3', '4'],
+        answer: 2,
+        explanation: 'p points to arr[0]. p[2] is equivalent to *(p + 2) which gives arr[2] = 3.'
+      },
+      {
+        q: 'How do you dynamically allocate a 1D array of n integers?',
+        options: ['int arr = malloc(n);', 'int arr[n] = malloc(n);', 'int *arr = (int*)malloc(n * sizeof(int));', 'int *arr = new int[n];'],
+        answer: 2,
+        explanation: 'malloc(n * sizeof(int)) allocates n * 4 bytes (on most platforms). The cast to int* is necessary in C. Always check if the result is NULL.'
+      },
+      {
+        q: 'What is a sentinel value in the context of arrays?',
+        options: ['The size of the array', 'A special value marking the end of data', 'The first element of an array', 'An initialised but unused array slot'],
+        answer: 1,
+        explanation: 'A sentinel value is a special marker at the end of data to signal termination — the null character \\0 in C strings is a classic example.'
+      },
+      {
+        q: 'What is binary search, and what precondition does the array need?',
+        options: ['A search that checks every element; works on any array', 'A divide-and-conquer search; the array must be sorted', 'A search using recursion; works on linked lists', 'A hash-based search; requires unique elements'],
+        answer: 1,
+        explanation: 'Binary search halves the search space at each step, achieving O(log n) time. It requires the array to be sorted in ascending (or descending) order.'
+      },
+      {
+        q: 'What does memset(arr, 0, sizeof(arr)) do?',
+        options: ['Frees the array', 'Sets all elements to their default values', 'Sets every byte of arr to 0', 'Counts the number of elements'],
+        answer: 2,
+        explanation: 'memset sets every byte in the given memory region to the specified value. Setting to 0 effectively zeroes out integer arrays (works because 0 is all-zero bytes).'
+      },
+      {
+        q: 'What is a sparse array?',
+        options: ['An array with only odd-indexed elements', 'An array where most elements are zero or unused', 'An array of pointers', 'A fixed-size array'],
+        answer: 1,
+        explanation: 'A sparse array is one in which most elements have the same default value (typically 0). Storing it as a flat array wastes memory; hash maps or linked lists are more efficient alternatives.'
+      },
+      {
+        q: 'What is the time complexity of accessing a random element in an array?',
+        options: ['O(log n)', 'O(n)', 'O(1)', 'O(n²)'],
+        answer: 2,
+        explanation: 'Array access is O(1) — constant time — because elements are stored in contiguous memory and the address of arr[i] is computed directly as base + i * sizeof(element).'
+      }
+    ]
+  },
+  {
+    id: 7, title: 'Test 7: Strings — Operations & Functions',
+    category: 'Advanced Topics',
+    questions: [
+      {
+        q: 'What is the output?\nchar s[] = "Hello";\nprintf("%d", strlen(s));',
+        options: ['6', '5', '4', 'Error'],
+        answer: 1,
+        explanation: 'strlen returns the number of characters before the null terminator. "Hello" has 5 characters, so strlen returns 5.'
+      },
+      {
+        q: 'What is the difference between char *s = "hello" and char s[] = "hello"?',
+        options: ['No difference', 'char *s points to a string literal (read-only); char s[] is a mutable copy', 'char s[] cannot be passed to functions', 'char *s automatically appends \\0'],
+        answer: 1,
+        explanation: 'String literals are stored in read-only memory. char *s = "hello" gives a pointer to it — modifying it is undefined behaviour. char s[] creates a mutable stack copy.'
+      },
+      {
+        q: 'What is the safe alternative to strcpy() for preventing buffer overflow?',
+        options: ['safecpy()', 'strncpy()', 'memcopy()', 'strcopy_s()'],
+        answer: 1,
+        explanation: 'strncpy(dest, src, n) copies at most n characters, preventing overflow. Note: it may not null-terminate the destination if src is longer than n — add a manual null terminator.'
+      },
+      {
+        q: 'What does strstr(haystack, needle) return?',
+        options: ['The index of needle in haystack', 'A pointer to the first occurrence of needle in haystack, or NULL', 'The length of needle', 'True or false'],
+        answer: 1,
+        explanation: 'strstr returns a pointer to the first occurrence of the substring needle within haystack, or NULL if not found.'
+      },
+      {
+        q: 'How do you convert a string to an integer in C?',
+        options: ['(int)"42"', 'itoa("42")', 'atoi("42")', 'parseInt("42")'],
+        answer: 2,
+        explanation: 'atoi() (ASCII to integer) converts a numeric string to an int. For better error handling, use strtol(), which reports errors via errno and detects non-numeric input.'
+      },
+      {
+        q: 'What does the following print?\nchar s[] = "ABCDE";\ns[2] = \'X\';\nprintf("%s", s);',
+        options: ['ABCDE', 'ABXDE', 'Error', 'ABCDE\\0'],
+        answer: 1,
+        explanation: 'char s[] is a mutable array. Setting s[2] = \'X\' changes the third character. printf prints ABXDE.'
+      },
+      {
+        q: 'What is the purpose of snprintf()?',
+        options: ['Reads a formatted string', 'Compares two strings', 'Writes formatted output to a buffer with a maximum size limit', 'Converts a string to float'],
+        answer: 2,
+        explanation: 'snprintf writes at most n-1 characters plus a null terminator to the buffer, making it safe against buffer overflows, unlike sprintf.'
+      },
+      {
+        q: 'What does strtok return when no more tokens are found?',
+        options: ['An empty string ""', '0', 'NULL', '-1'],
+        answer: 2,
+        explanation: 'strtok returns NULL when the string has been fully tokenised. Always check for NULL before using the return value.'
+      },
+      {
+        q: 'Which function converts a string to uppercase in standard C?',
+        options: ['toUpper()', 'strtoupper()', 'There is no standard function; use toupper() on each character', 'strupr()'],
+        answer: 2,
+        explanation: 'Standard C (C99/C11) has no direct string-to-uppercase function. Use a loop with toupper() (from <ctype.h>) on each character.'
+      },
+      {
+        q: 'How do you check if a character is a digit in C?',
+        options: ['char >= 0 && char <= 9', 'isdigit(c) from <ctype.h>', 'c == digit', 'scanf detects digits automatically'],
+        answer: 1,
+        explanation: 'isdigit(c) returns non-zero (true) if c is a decimal digit character (\'0\'–\'9\'). Include <ctype.h>.'
+      }
+    ]
+  },
+  {
+    id: 8, title: 'Test 8: Pointers — Advanced Concepts',
+    category: 'Advanced Topics',
+    questions: [
+      {
+        q: 'What is the output?\nint x = 10, *p = &x;\n*p = 20;\nprintf("%d", x);',
+        options: ['10', '20', 'Address of x', 'Undefined'],
+        answer: 1,
+        explanation: 'p stores the address of x. *p = 20 dereferences p and writes 20 into x. Therefore x = 20.'
+      },
+      {
+        q: 'What is the difference between int *p and int **p?',
+        options: ['No difference', 'int *p is a pointer to int; int **p is a pointer to a pointer to int', 'int **p has double the memory', 'int **p is invalid C'],
+        answer: 1,
+        explanation: 'int *p points to an integer. int **p points to a pointer-to-integer. Double pointers are used in functions that need to modify a pointer argument, or for 2D dynamic arrays.'
+      },
+      {
+        q: 'What does free(p) do to the pointer p itself?',
+        options: ['Sets p to NULL', 'Deallocates the memory p points to, but p still holds the old address', 'Removes the pointer variable', 'Sets *p to 0'],
+        answer: 1,
+        explanation: 'free() releases the heap memory at the address p holds, but it does not modify p. After free(), p becomes a dangling pointer — set it to NULL immediately after.'
+      },
+      {
+        q: 'What is pointer aliasing?',
+        options: ['Giving a pointer a readable name', 'Two pointers referring to the same memory location', 'A pointer to a struct', 'A read-only pointer'],
+        answer: 1,
+        explanation: 'Pointer aliasing occurs when two or more pointers point to the same memory. It can cause subtle bugs if one pointer modifies the memory and another reads stale data.'
+      },
+      {
+        q: 'What is the output of: printf("%d", *(&x + 1) - *(&x)); where x is an int?',
+        options: ['1', '4', 'Undefined behaviour', '0'],
+        answer: 2,
+        explanation: '&x + 1 points one past the address of x — this is outside the object. Dereferencing it is undefined behaviour in C.'
+      },
+      {
+        q: 'What is a const pointer vs a pointer to const?',
+        code: 'const int *p; // pointer to const\nint * const p; // const pointer',
+        options: ['They are identical', 'const int *p: cannot modify *p. int *const p: cannot modify p (the address)', 'const int *p: cannot modify p. int *const p: cannot modify *p', 'Both prevent any modification'],
+        answer: 1,
+        explanation: 'const int *p (pointer to const int) prevents you from modifying the pointed-to value. int *const p (const pointer to int) prevents you from changing where p points.'
+      },
+      {
+        q: 'What does void pointer (void *) enable?',
+        options: ['Pointing to void functions', 'A generic pointer that works with any data type', 'A pointer with no memory overhead', 'A pointer that cannot be dereferenced at all'],
+        answer: 1,
+        explanation: 'void * is a generic pointer that can hold the address of any type. It must be cast to the appropriate type before dereferencing. malloc returns void *.'
+      },
+      {
+        q: 'What is the output?\nint a[] = {10,20,30};\nint *p = a;\np++;\nprintf("%d", *p);',
+        options: ['10', '20', '30', 'Address'],
+        answer: 1,
+        explanation: 'p initially points to a[0]. p++ advances the pointer by sizeof(int) bytes, making it point to a[1]. *p is 20.'
+      },
+      {
+        q: 'Which is the correct declaration of a function pointer for: int add(int, int)?',
+        options: ['int *fp(int, int);', 'int (*fp)(int, int);', 'int &fp(int, int);', 'pointer<int(int,int)> fp;'],
+        answer: 1,
+        explanation: 'int (*fp)(int, int) declares fp as a pointer to a function that takes two ints and returns an int. Parentheses around *fp are necessary due to precedence.'
+      },
+      {
+        q: 'What happens when you increment a pointer to char vs a pointer to int?',
+        options: ['Both advance by 1 byte', 'char pointer advances by 1 byte; int pointer advances by 4 bytes (on 32-bit)', 'Both advance by 4 bytes', 'The result depends on the OS'],
+        answer: 1,
+        explanation: 'Pointer arithmetic increments by sizeof(pointed_type). char is 1 byte, int is typically 4 bytes. Pointer increment = 1 * sizeof(type).'
+      }
+    ]
+  },
+  {
+    id: 9, title: 'Test 9: Functions & Recursion',
+    category: 'Advanced Topics',
+    questions: [
+      {
+        q: 'What is the output of this recursive function for factorial(3)?\nint factorial(int n) {\n  if (n == 0) return 1;\n  return n * factorial(n - 1);\n}',
+        options: ['3', '6', '9', '1'],
+        answer: 1,
+        explanation: 'factorial(3) = 3 * factorial(2) = 3 * 2 * factorial(1) = 3 * 2 * 1 * factorial(0) = 3 * 2 * 1 * 1 = 6.'
+      },
+      {
+        q: 'What is a tail-recursive function?',
+        options: ['A function that calls itself at the beginning', 'A function whose recursive call is the last operation before returning', 'A function with no base case', 'A function that returns a pointer'],
+        answer: 1,
+        explanation: 'Tail recursion places the recursive call as the last operation. Some compilers optimise tail-recursive calls into loops, avoiding stack growth.'
+      },
+      {
+        q: 'What is the difference between a function declaration and a function definition?',
+        options: ['No difference', 'Declaration specifies the signature; definition provides the body', 'Declaration allocates memory; definition does not', 'Definitions appear in header files only'],
+        answer: 1,
+        explanation: 'A declaration (prototype) tells the compiler the function\'s name, return type, and parameter types. A definition provides the actual implementation body.'
+      },
+      {
+        q: 'What happens if a non-void function reaches the end without a return statement?',
+        options: ['Returns 0 always', 'Returns NULL', 'Undefined behaviour — the return value is indeterminate', 'Compiler error in all cases'],
+        answer: 2,
+        explanation: 'In C, falling off the end of a non-void function without a return statement results in undefined behaviour. Modern compilers issue a warning.'
+      },
+      {
+        q: 'How are arguments passed to functions in C by default?',
+        options: ['By reference', 'By pointer', 'By value (copies are made)', 'By register'],
+        answer: 2,
+        explanation: 'C passes arguments by value. The function receives copies of the arguments. To modify the original variables, pass their addresses (pointers).'
+      },
+      {
+        q: 'What is a callback function?',
+        options: ['A function that is called twice', 'A function passed as an argument (via function pointer) to another function', 'A function that returns itself', 'A recursive function'],
+        answer: 1,
+        explanation: 'A callback is a function passed to another function via a function pointer. The receiving function calls it at a specific point. qsort() in the C library uses this pattern.'
+      },
+      {
+        q: 'What is the maximum recursion depth limited by?',
+        options: ['The heap size', 'The stack size — each call uses a stack frame', 'The number of global variables', 'The loop counter'],
+        answer: 1,
+        explanation: 'Each recursive call pushes a new frame onto the call stack. The stack has a finite size (typically 1–8 MB), so deep recursion causes a stack overflow.'
+      },
+      {
+        q: 'What does the following code compute?\nint f(int n) { return (n <= 1) ? n : f(n-1) + f(n-2); }',
+        options: ['Factorial of n', 'Power of 2', 'The n-th Fibonacci number', 'Sum 1 to n'],
+        answer: 2,
+        explanation: 'This is the classic recursive Fibonacci: f(0)=0, f(1)=1, f(n)=f(n-1)+f(n-2). It is correct but exponentially slow — use memoisation or iteration for large n.'
+      },
+      {
+        q: 'What is a variadic function? Give an example from the C standard library.',
+        options: ['A function with no parameters', 'A function accepting a variable number of arguments — example: printf()', 'A function that modifies global state', 'A recursive function'],
+        answer: 1,
+        explanation: 'Variadic functions use ... in their parameter list. printf is the classic example. They use va_list, va_start, va_arg, and va_end from <stdarg.h>.'
+      },
+      {
+        q: 'When should you prefer iteration over recursion?',
+        options: ['Never — recursion is always more efficient', 'When the problem has no repeated subproblems', 'When recursion depth may be large, or performance and stack usage are concerns', 'When using C++ only'],
+        answer: 2,
+        explanation: 'Iteration is generally preferable when the recursion depth is large (risk of stack overflow), or when performance is critical (no function call overhead per step).'
+      }
+    ]
+  },
+  {
+    id: 10, title: 'Test 10: Error Handling & Robust C',
+    category: 'Advanced Topics',
+    questions: [
+      {
+        q: 'What is the value of errno after a successful system call?',
+        options: ['Always 0', 'Undefined — errno is not cleared on success', '-1', 'It depends on the OS'],
+        answer: 1,
+        explanation: 'errno is not reset to 0 on success. Always set errno = 0 before a call and then check it only if the call\'s return value indicates failure.'
+      },
+      {
+        q: 'Which header must be included to use errno?',
+        options: ['<stdlib.h>', '<stdio.h>', '<error.h>', '<errno.h>'],
+        answer: 3,
+        explanation: '#include <errno.h> makes the errno macro and error constants (ENOENT, ENOMEM, EINVAL, etc.) available.'
+      },
+      {
+        q: 'What does ENOENT indicate in errno?',
+        options: ['Not enough memory', 'Permission denied', 'No such file or directory', 'Invalid argument'],
+        answer: 2,
+        explanation: 'ENOENT stands for "Error NO ENTry" — the file or directory does not exist. It is commonly set by fopen() and file-access functions.'
+      },
+      {
+        q: 'How should fopen() failure be handled?',
+        options: ['Ignore it — fopen always succeeds', 'Check if the return value is NULL and handle the error', 'Use try-catch', 'Check if the return value is -1'],
+        answer: 1,
+        explanation: 'fopen returns NULL on failure. Always check: FILE *f = fopen(...); if (!f) { perror("fopen"); exit(EXIT_FAILURE); }'
+      },
+      {
+        q: 'What is the difference between abort() and exit()?',
+        options: ['No difference', 'abort() terminates abnormally (raises SIGABRT, skips cleanup); exit() terminates normally (calls atexit handlers, flushes buffers)', 'exit() is faster', 'abort() is for Windows only'],
+        answer: 1,
+        explanation: 'abort() causes abnormal termination — cleanup handlers are not called. exit() performs an orderly shutdown: atexit handlers run and stdio buffers are flushed.'
+      },
+      {
+        q: 'What does assert(x != NULL) do if x is NULL?',
+        options: ['Prints a warning and continues', 'Calls free(x)', 'Aborts the program with a diagnostic message indicating the failing condition and location', 'Returns false'],
+        answer: 2,
+        explanation: 'If the assertion condition evaluates to false, assert() prints the failed expression, file name, and line number to stderr, then calls abort().'
+      },
+      {
+        q: 'When should you use NDEBUG?',
+        options: ['To enable verbose error output', 'To define it before <assert.h> to disable all assert() checks in release builds', 'To enable memory debugging', 'To suppress compiler warnings'],
+        answer: 1,
+        explanation: 'Defining NDEBUG (usually via -DNDEBUG in the compiler command) causes <assert.h> to make assert() a no-op, removing all assertion overhead from release code.'
+      },
+      {
+        q: 'What is the safe way to validate a pointer before dereferencing it?',
+        options: ['Just dereference it — the OS will handle errors', 'Cast it to int first', 'Check if it is not NULL before dereferencing', 'Use try-catch around the dereference'],
+        answer: 2,
+        explanation: 'Always check pointer != NULL before dereferencing. The OS does not trap all invalid dereferences gracefully in C — the behaviour is undefined.'
+      },
+      {
+        q: 'What does ferror() check?',
+        options: ['Whether a file exists', 'Whether the end of file has been reached', 'Whether an error has occurred on a FILE stream', 'The size of the last error'],
+        answer: 2,
+        explanation: 'ferror(fp) returns non-zero if the error indicator is set on the stream fp. Use it after read/write operations to detect failures not caught by return values alone.'
+      },
+      {
+        q: 'What is defensive programming in C?',
+        options: ['Writing code that runs faster by avoiding branches', 'Proactively validating inputs, checking return values, and handling all error paths to prevent undefined behaviour', 'Using only standard library functions', 'Adding comments before every line'],
+        answer: 1,
+        explanation: 'Defensive programming anticipates failures: validate all inputs, check every return value that can fail, guard against null and out-of-bounds access, and handle errors explicitly rather than assuming success.'
+      }
+    ]
+  }
+];
+
+let mcqInitialized = false;
+let mcqState = {};
+
+function initMCQ() {
+  mcqInitialized = true;
+  mcqTests.forEach(t => {
+    mcqState[t.id] = { answers: {}, submitted: false, score: 0 };
+  });
+  renderMCQSidebar();
+  loadMCQTest(1);
+}
+
+function renderMCQSidebar() {
+  const sb = document.getElementById('mcq-sidebar');
+  sb.innerHTML = `<div class="mcq-section-divider">C Basics</div>`;
+  mcqTests.forEach(t => {
+    const state = mcqState[t.id];
+    const done = state && state.submitted;
+    sb.innerHTML += `<button class="mcq-test-btn" id="mcq-tab-${t.id}" onclick="loadMCQTest(${t.id})">
+      <span>${t.title.split(':')[0]}</span>
+      <span class="mcq-badge${done ? ' done' : ''}">${done ? state.score + '/10' : t.category === 'C Basics' ? 'Basic' : 'Adv'}</span>
+    </button>`;
+    if (t.id === 5) sb.innerHTML += `<div class="mcq-section-divider">Advanced Topics</div>`;
+  });
+}
+
+function loadMCQTest(id) {
+  document.querySelectorAll('.mcq-test-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('mcq-tab-' + id);
+  if (btn) btn.classList.add('active');
+  const test = mcqTests.find(t => t.id === id);
+  const state = mcqState[id];
+  const main = document.getElementById('mcq-main');
+
+  let html = `<div class="mcq-test-header">
+    <h2>${test.title}</h2>
+    <p>${test.category} &nbsp;·&nbsp; 10 Questions &nbsp;·&nbsp; Select the best answer for each question</p>
+  </div>`;
+
+  if (state.submitted) {
+    html += `<div class="mcq-score-banner show">
+      <div class="mcq-score-big">${state.score} / 10</div>
+      <div class="mcq-score-label">${state.score >= 8 ? 'Excellent — strong command of this topic.' : state.score >= 5 ? 'Good — review the incorrect answers below.' : 'Needs work — revisit the flashcards and retry.'}</div>
+    </div>`;
+  }
+
+  test.questions.forEach((q, qi) => {
+    html += `<div class="mcq-question" id="mcq-q-${id}-${qi}">
+      <div class="mcq-q-num">Question ${qi + 1}</div>
+      <div class="mcq-q-text">${q.q.replace(/\n/g, '<br>')}</div>
+      ${q.code ? `<div class="mcq-code">${q.code}</div>` : ''}
+      <div class="mcq-options">`;
+
+    q.options.forEach((opt, oi) => {
+      let cls = 'mcq-opt';
+      const chosen = state.answers[qi];
+      if (state.submitted) {
+        if (oi === q.answer) cls += ' correct';
+        else if (oi === chosen && oi !== q.answer) cls += ' incorrect';
+      } else if (oi === chosen) cls += ' selected';
+      const letters = ['A', 'B', 'C', 'D'];
+      html += `<button class="${cls}" ${state.submitted ? 'disabled' : ''} onclick="selectMCQAnswer(${id}, ${qi}, ${oi})">
+        <span class="mcq-opt-letter">${letters[oi]}</span>${opt}
+      </button>`;
+    });
+
+    html += `</div>`;
+    if (state.submitted) {
+      html += `<div class="mcq-explanation show"><strong>Explanation:</strong> ${q.explanation}</div>`;
+    }
+    html += `</div>`;
+  });
+
+  if (!state.submitted) {
+    html += `<div class="mcq-submit-row">
+      <button class="btn btn-primary" onclick="submitMCQTest(${id})">Submit Test</button>
+      <button class="btn btn-outline" onclick="resetMCQTest(${id})">Clear Answers</button>
+    </div>`;
+  } else {
+    html += `<div class="mcq-submit-row">
+      <button class="btn btn-outline" onclick="resetMCQTest(${id})">Retake Test</button>
+    </div>`;
+  }
+
+  main.innerHTML = html;
+  main.scrollTop = 0;
+}
+
+function selectMCQAnswer(testId, qi, oi) {
+  if (mcqState[testId].submitted) return;
+  mcqState[testId].answers[qi] = oi;
+  document.querySelectorAll(`#mcq-q-${testId}-${qi} .mcq-opt`).forEach((b, i) => {
+    b.classList.toggle('selected', i === oi);
+  });
+}
+
+function submitMCQTest(id) {
+  const state = mcqState[id];
+  const test = mcqTests.find(t => t.id === id);
+  let score = 0;
+  test.questions.forEach((q, qi) => { if (state.answers[qi] === q.answer) score++; });
+  state.score = score;
+  state.submitted = true;
+  renderMCQSidebar();
+  loadMCQTest(id);
+  updateChecklistFromMCQ();
+}
+
+function resetMCQTest(id) {
+  mcqState[id] = { answers: {}, submitted: false, score: 0 };
+  renderMCQSidebar();
+  loadMCQTest(id);
+  updateChecklistFromMCQ();
+}
+
+function updateChecklistFromMCQ() {
+  const doneCount = Object.values(mcqState).filter(s => s.submitted).length;
+  if (doneCount > 0) checklistState['mcq-completed'] = true;
+  if (doneCount >= 10) checklistState['mcq-all'] = true;
+  saveChecklist();
+  if (document.getElementById('checklist-page').classList.contains('active')) renderChecklist();
+}
+
+// ══════════════ PROGRAMMING TEST ══════════════
+const progQuestions = [
+  {
+    title: 'Reverse an Array',
+    tag: 'easy', topic: 'Arrays',
+    q: 'Write a C function that reverses an integer array in place. The function should take a pointer to the array and its length. Do not use any additional array.',
+    code: `void reverseArray(int *arr, int n) {\n    int left = 0, right = n - 1;\n    while (left < right) {\n        int temp = arr[left];\n        arr[left]  = arr[right];\n        arr[right] = temp;\n        left++;\n        right--;\n    }\n}`,
+    explanation: 'Use two pointers — one starting from the left end, the other from the right. Swap the elements they point to and move them toward the centre. Stop when they meet or cross. Time: O(n), Space: O(1).'
+  },
+  {
+    title: 'Count Vowels in a String',
+    tag: 'easy', topic: 'Strings',
+    q: 'Write a C function that counts and returns the number of vowels (a, e, i, o, u — both upper and lowercase) in a null-terminated string.',
+    code: `int countVowels(const char *s) {\n    const char *vowels = "aeiouAEIOU";\n    int count = 0;\n    while (*s) {\n        if (strchr(vowels, *s)) count++;\n        s++;\n    }\n    return count;\n}`,
+    explanation: 'Traverse the string character by character. Use strchr() to check if each character appears in the vowel set. strchr returns a non-NULL pointer if the character is found.'
+  },
+  {
+    title: 'Swap Two Integers Using Pointers',
+    tag: 'easy', topic: 'Pointers',
+    q: 'Write a C function that swaps the values of two integer variables using pointers. The changes must be visible to the caller.',
+    code: `void swap(int *a, int *b) {\n    int temp = *a;\n    *a = *b;\n    *b = temp;\n}`,
+    explanation: 'Pass the addresses of the variables. Dereference both pointers to access the values. Perform the swap using a temporary variable. Without pointers, C\'s pass-by-value would not allow the original variables to be modified.'
+  },
+  {
+    title: 'Find the Maximum Element in an Array',
+    tag: 'easy', topic: 'Arrays',
+    q: 'Write a C function that accepts an integer array and its size and returns the maximum value. Assume the array is non-empty.',
+    code: `int findMax(int *arr, int n) {\n    int max = arr[0];\n    for (int i = 1; i < n; i++) {\n        if (arr[i] > max)\n            max = arr[i];\n    }\n    return max;\n}`,
+    explanation: 'Initialise max to the first element. Scan the rest of the array; whenever a larger element is found, update max. Return max after the loop. O(n) time, O(1) space.'
+  },
+  {
+    title: 'Implement strlen Without Using the Standard Library',
+    tag: 'easy', topic: 'Strings',
+    q: 'Implement your own version of strlen() in C. It should return the number of characters in a null-terminated string, not counting the null terminator.',
+    code: `size_t my_strlen(const char *s) {\n    const char *start = s;\n    while (*s != '\\0') s++;\n    return (size_t)(s - start);\n}`,
+    explanation: 'Save the start address. Advance the pointer until the null terminator is found. The difference between the final pointer and the start pointer is the string length in bytes (characters).'
+  },
+  {
+    title: 'Fibonacci — Iterative',
+    tag: 'medium', topic: 'Functions',
+    q: 'Write an iterative C function that returns the n-th Fibonacci number (F(0)=0, F(1)=1). It should handle n up to at least 40 without overflow (use long long).',
+    code: `long long fibonacci(int n) {\n    if (n <= 1) return n;\n    long long prev = 0, curr = 1;\n    for (int i = 2; i <= n; i++) {\n        long long next = prev + curr;\n        prev = curr;\n        curr = next;\n    }\n    return curr;\n}`,
+    explanation: 'The iterative approach avoids the O(2^n) time of naive recursion. It uses two variables to track consecutive Fibonacci numbers, updating them each iteration in O(n) time and O(1) space.'
+  },
+  {
+    title: 'Dynamic Array Allocation and Population',
+    tag: 'medium', topic: 'Pointers',
+    q: 'Write a C function that dynamically allocates an array of n integers, fills it with values 1 to n, and returns a pointer to it. The caller is responsible for freeing it.',
+    code: `int *createArray(int n) {\n    int *arr = (int *)malloc(n * sizeof(int));\n    if (!arr) {\n        fprintf(stderr, "Memory allocation failed\\n");\n        return NULL;\n    }\n    for (int i = 0; i < n; i++)\n        arr[i] = i + 1;\n    return arr;\n}\n\n// Caller usage:\n// int *a = createArray(10);\n// if (a) { /* use a */ free(a); }`,
+    explanation: 'malloc(n * sizeof(int)) allocates space for n integers. Always check for NULL. Return the pointer to the caller who must free it. This pattern is central to dynamic data structures in C.'
+  },
+  {
+    title: 'String Palindrome Check',
+    tag: 'medium', topic: 'Strings',
+    q: 'Write a C function that returns 1 if a given string is a palindrome (reads the same forwards and backwards, case-insensitively), and 0 otherwise. Ignore non-alphabetic characters.',
+    code: `#include <ctype.h>\n#include <string.h>\n\nint isPalindrome(const char *s) {\n    int left = 0, right = (int)strlen(s) - 1;\n    while (left < right) {\n        while (left < right && !isalpha(s[left]))  left++;\n        while (left < right && !isalpha(s[right])) right--;\n        if (tolower(s[left]) != tolower(s[right])) return 0;\n        left++; right--;\n    }\n    return 1;\n}`,
+    explanation: 'Use two pointers from both ends. Skip non-alphabetic characters. Compare characters case-insensitively using tolower(). If any mismatch is found, it is not a palindrome. O(n) time.'
+  },
+  {
+    title: 'Bubble Sort Implementation',
+    tag: 'medium', topic: 'Arrays',
+    q: 'Implement the Bubble Sort algorithm in C to sort an integer array in ascending order. Include an early-exit optimisation to stop if the array becomes sorted before all passes complete.',
+    code: `void bubbleSort(int *arr, int n) {\n    for (int i = 0; i < n - 1; i++) {\n        int swapped = 0;\n        for (int j = 0; j < n - 1 - i; j++) {\n            if (arr[j] > arr[j + 1]) {\n                int tmp = arr[j];\n                arr[j]   = arr[j + 1];\n                arr[j + 1] = tmp;\n                swapped = 1;\n            }\n        }\n        if (!swapped) break;  /* already sorted */\n    }\n}`,
+    explanation: 'Bubble Sort compares adjacent elements and swaps if out of order. Each full pass "bubbles" the largest unsorted element to its correct position. The swapped flag enables early exit, giving O(n) best-case for already-sorted input.'
+  },
+  {
+    title: 'Safe String Copy Function',
+    tag: 'medium', topic: 'Strings',
+    q: 'Write a safe string copy function my_strncpy(dest, src, n) that copies at most n-1 characters from src to dest and always null-terminates dest.',
+    code: `char *my_strncpy(char *dest, const char *src, size_t n) {\n    if (n == 0 || !dest || !src) return dest;\n    size_t i;\n    for (i = 0; i < n - 1 && src[i] != '\\0'; i++)\n        dest[i] = src[i];\n    dest[i] = '\\0';\n    return dest;\n}`,
+    explanation: 'The standard strncpy does not guarantee null-termination. This implementation always writes \'\\0\' at dest[i] after the loop. The guard i < n-1 ensures the null terminator fits within the buffer.'
+  },
+  {
+    title: 'Linked List Node — Append',
+    tag: 'medium', topic: 'Pointers',
+    q: 'Define a singly linked list node struct in C and write a function that appends a new node with a given integer value to the end of the list.',
+    code: `typedef struct Node {\n    int data;\n    struct Node *next;\n} Node;\n\nvoid append(Node **head, int val) {\n    Node *newNode = (Node *)malloc(sizeof(Node));\n    if (!newNode) { perror("malloc"); return; }\n    newNode->data = val;\n    newNode->next = NULL;\n    if (*head == NULL) { *head = newNode; return; }\n    Node *curr = *head;\n    while (curr->next) curr = curr->next;\n    curr->next = newNode;\n}`,
+    explanation: 'Node** (double pointer) lets the function modify the caller\'s head pointer if the list is empty. Traverse to the last node (curr->next == NULL) and set its next to the new node. Always check malloc return value.'
+  },
+  {
+    title: 'Count Words in a String',
+    tag: 'medium', topic: 'Strings',
+    q: 'Write a C function that counts the number of words in a string. Words are separated by one or more whitespace characters (spaces, tabs, newlines).',
+    code: `#include <ctype.h>\n\nint countWords(const char *s) {\n    int count = 0, inWord = 0;\n    while (*s) {\n        if (!isspace((unsigned char)*s)) {\n            if (!inWord) { count++; inWord = 1; }\n        } else {\n            inWord = 0;\n        }\n        s++;\n    }\n    return count;\n}`,
+    explanation: 'Track whether you are currently inside a word. When you transition from whitespace to a non-whitespace character, increment the counter. The inWord flag prevents counting consecutive non-whitespace characters multiple times.'
+  },
+  {
+    title: 'Recursive Binary Search',
+    tag: 'medium', topic: 'Functions',
+    q: 'Write a recursive C function for binary search. It should return the index of the target in a sorted integer array, or -1 if not found.',
+    code: `int binarySearch(int *arr, int low, int high, int target) {\n    if (low > high) return -1;\n    int mid = low + (high - low) / 2;\n    if (arr[mid] == target) return mid;\n    if (arr[mid] < target)\n        return binarySearch(arr, mid + 1, high, target);\n    return binarySearch(arr, low, mid - 1, target);\n}`,
+    explanation: 'Compute mid as low + (high - low) / 2 (avoids integer overflow vs (low+high)/2). If arr[mid] matches, return mid. If less, search the right half; otherwise search the left half. Base case: low > high means not found.'
+  },
+  {
+    title: 'Matrix Multiplication',
+    tag: 'hard', topic: 'Arrays',
+    q: 'Write a C function to multiply two n×n matrices A and B and store the result in C. Assume all matrices are passed as 1D arrays with row-major layout (index: i*n + j).',
+    code: `void matMul(int *A, int *B, int *C, int n) {\n    for (int i = 0; i < n; i++) {\n        for (int j = 0; j < n; j++) {\n            C[i*n + j] = 0;\n            for (int k = 0; k < n; k++)\n                C[i*n + j] += A[i*n + k] * B[k*n + j];\n        }\n    }\n}`,
+    explanation: 'The classic O(n³) algorithm. Each entry C[i][j] is the dot product of row i of A and column j of B. Using 1D arrays with row-major indexing (i*n+j) avoids the need for variable-length 2D array syntax.'
+  },
+  {
+    title: 'Implement a Stack Using Arrays',
+    tag: 'hard', topic: 'Arrays',
+    q: 'Implement a fixed-size stack in C using a struct with an array, a top index, and a maximum capacity. Provide push, pop, and peek operations with proper error handling.',
+    code: `#define MAX_SIZE 100\n\ntypedef struct {\n    int data[MAX_SIZE];\n    int top;\n} Stack;\n\nvoid initStack(Stack *s) { s->top = -1; }\n\nint push(Stack *s, int val) {\n    if (s->top >= MAX_SIZE - 1) { fprintf(stderr, "Stack overflow\\n"); return 0; }\n    s->data[++(s->top)] = val;\n    return 1;\n}\n\nint pop(Stack *s, int *out) {\n    if (s->top < 0) { fprintf(stderr, "Stack underflow\\n"); return 0; }\n    *out = s->data[(s->top)--];\n    return 1;\n}\n\nint peek(const Stack *s, int *out) {\n    if (s->top < 0) return 0;\n    *out = s->data[s->top];\n    return 1;\n}`,
+    explanation: 'top = -1 represents an empty stack. push increments top then stores the value. pop reads the top value and decrements top. Both return a success flag to communicate error states to the caller — defensive programming in C.'
+  },
+  {
+    title: 'Generic Swap Using void Pointers',
+    tag: 'hard', topic: 'Pointers',
+    q: 'Write a generic swap function in C that uses void* and a size parameter to swap two memory regions of any type.',
+    code: `#include <string.h>\n\nvoid genericSwap(void *a, void *b, size_t size) {\n    char temp[256];\n    if (size > sizeof(temp)) return; /* guard for large types */\n    memcpy(temp, a,    size);\n    memcpy(a,    b,    size);\n    memcpy(b,    temp, size);\n}`,
+    explanation: 'void* allows the function to accept pointers to any type. memcpy copies size bytes regardless of type. This mirrors how qsort\'s comparison function and element swapping work internally. A VLA or heap buffer would remove the size limit for production code.'
+  },
+  {
+    title: 'Error-Robust File Reader',
+    tag: 'hard', topic: 'Error Handling',
+    q: 'Write a C function that opens a file by name, reads its contents line by line using fgets, prints each line to stdout, and handles all error conditions explicitly including fopen failure and fgets errors.',
+    code: `#include <stdio.h>\n#include <errno.h>\n#include <string.h>\n\nint readFileLines(const char *filename) {\n    errno = 0;\n    FILE *fp = fopen(filename, "r");\n    if (!fp) {\n        fprintf(stderr, "Cannot open '%s': %s\\n", filename, strerror(errno));\n        return -1;\n    }\n    char line[1024];\n    while (fgets(line, sizeof(line), fp)) {\n        fputs(line, stdout);\n    }\n    if (ferror(fp)) {\n        fprintf(stderr, "Read error on '%s': %s\\n", filename, strerror(errno));\n        fclose(fp);\n        return -1;\n    }\n    fclose(fp);\n    return 0;\n}`,
+    explanation: 'Check fopen for NULL. Use fgets with an explicit buffer size to avoid overflow. After the loop, distinguish end-of-file (expected) from a stream error using ferror(). Always close the file on every exit path. Set errno = 0 before the call to avoid stale values.'
+  },
+  {
+    title: 'Merge Sort Implementation',
+    tag: 'hard', topic: 'Functions',
+    q: 'Implement Merge Sort in C for an integer array. Write both the merge helper function and the recursive mergeSort function.',
+    code: `void merge(int *arr, int l, int m, int r) {\n    int n1 = m - l + 1, n2 = r - m;\n    int *L = malloc(n1 * sizeof(int));\n    int *R = malloc(n2 * sizeof(int));\n    if (!L || !R) { free(L); free(R); return; }\n    for (int i = 0; i < n1; i++) L[i] = arr[l + i];\n    for (int j = 0; j < n2; j++) R[j] = arr[m + 1 + j];\n    int i = 0, j = 0, k = l;\n    while (i < n1 && j < n2)\n        arr[k++] = (L[i] <= R[j]) ? L[i++] : R[j++];\n    while (i < n1) arr[k++] = L[i++];\n    while (j < n2) arr[k++] = R[j++];\n    free(L); free(R);\n}\n\nvoid mergeSort(int *arr, int l, int r) {\n    if (l < r) {\n        int m = l + (r - l) / 2;\n        mergeSort(arr, l, m);\n        mergeSort(arr, m + 1, r);\n        merge(arr, l, m, r);\n    }\n}`,
+    explanation: 'Merge Sort is a stable O(n log n) divide-and-conquer algorithm. mergeSort recursively halves the array; merge combines two sorted halves into a sorted whole using temporary arrays. Memory is allocated and freed per merge call. Always null-check malloc returns.'
+  },
+  {
+    title: 'Tokenise a CSV Line',
+    tag: 'hard', topic: 'Strings',
+    q: 'Write a C function that parses a single CSV line (comma-delimited) and populates an array of strings (tokens). Return the number of tokens found. Use only standard C string functions.',
+    code: `#include <string.h>\n#include <stdlib.h>\n\nint parseCSV(const char *line, char tokens[][256], int maxTokens) {\n    char buf[4096];\n    strncpy(buf, line, sizeof(buf) - 1);\n    buf[sizeof(buf) - 1] = '\\0';\n    int count = 0;\n    char *tok = strtok(buf, ",");\n    while (tok && count < maxTokens) {\n        strncpy(tokens[count], tok, 255);\n        tokens[count][255] = '\\0';\n        count++;\n        tok = strtok(NULL, ",");\n    }\n    return count;\n}`,
+    explanation: 'strtok modifies the input string in place, so a mutable copy (buf) must be made. Subsequent calls with NULL continue from where the previous call left off. Each token is copied to the output array with bounds checking. The function returns the token count.'
+  },
+  {
+    title: 'Detect and Handle Integer Overflow Safely',
+    tag: 'hard', topic: 'Error Handling',
+    q: 'Write a C function safeAdd(int a, int b, int *result) that adds two integers and stores the result in *result. Return 1 on success and 0 if the addition would overflow, without causing undefined behaviour.',
+    code: `#include <limits.h>\n\nint safeAdd(int a, int b, int *result) {\n    if (b > 0 && a > INT_MAX - b) return 0;  /* would overflow  */\n    if (b < 0 && a < INT_MIN - b) return 0;  /* would underflow */\n    *result = a + b;\n    return 1;\n}`,
+    explanation: 'Signed integer overflow is undefined behaviour in C — you cannot rely on wrapping. The safe approach is to check before performing the addition: if a > INT_MAX - b, adding b to a would exceed INT_MAX. The analogous check handles negative overflow. Only perform the addition when it is provably safe.'
+  }
+];
+
+let ptInitialized = false;
+
+function initProgTest() {
+  ptInitialized = true;
+  const container = document.getElementById('pt-container');
+  let html = `<div class="pt-header">
+    <h2>Programming Test — 20 Questions</h2>
+    <p>Read each problem carefully. Attempt a solution before revealing the model answer.</p>
+  </div>`;
+
+  progQuestions.forEach((pq, idx) => {
+    html += `<div class="pt-question">
+      <div class="pt-q-bar">
+        <span class="pt-q-title">Q${idx + 1}. ${pq.title}</span>
+        <span class="pt-q-tag ${pq.tag}">${pq.tag.toUpperCase()} &nbsp;·&nbsp; ${pq.topic}</span>
+      </div>
+      <div class="pt-q-body">
+        <div class="pt-q-text">${pq.q}</div>
+        <button class="pt-answer-toggle" onclick="toggleAnswer(${idx})">Show Model Solution</button>
+        <div class="pt-answer-block" id="pt-ans-${idx}">
+          <div class="pt-answer-label">Model Solution</div>
+          <div class="pt-code">${pq.code}</div>
+          <div class="pt-explanation"><strong>Explanation:</strong> ${pq.explanation}</div>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  container.innerHTML = html;
+}
+
+function toggleAnswer(idx) {
+  const block = document.getElementById('pt-ans-' + idx);
+  const btn = block.previousElementSibling;
+  const isShown = block.classList.toggle('show');
+  btn.textContent = isShown ? 'Hide Solution' : 'Show Model Solution';
+}
+
+// ══════════════ CHECKLIST ══════════════
+const checklistItems = [
+  {
+    section: 'Flashcards',
+    items: [
+      { id: 'fc-arrays',    label: 'Flashcards — Arrays: Completed all 10 cards' },
+      { id: 'fc-strings',   label: 'Flashcards — Strings: Completed all 10 cards' },
+      { id: 'fc-pointers',  label: 'Flashcards — Pointers: Completed all 10 cards' },
+      { id: 'fc-functions', label: 'Flashcards — Functions: Completed all 10 cards' },
+      { id: 'fc-errors',    label: 'Flashcards — Error Handling: Completed all 10 cards' },
+    ]
+  },
+  {
+    section: 'MCQ Tests — C Basics (Tests 1–5)',
+    items: [
+      { id: 'mcq-1', label: 'Test 1: Data Types & Variables — Score 6 or above' },
+      { id: 'mcq-2', label: 'Test 2: Operators & Expressions — Score 6 or above' },
+      { id: 'mcq-3', label: 'Test 3: Control Flow — Score 6 or above' },
+      { id: 'mcq-4', label: 'Test 4: Memory & Storage — Score 6 or above' },
+      { id: 'mcq-5', label: 'Test 5: Input/Output & Preprocessor — Score 6 or above' },
+    ]
+  },
+  {
+    section: 'MCQ Tests — Advanced Topics (Tests 6–10)',
+    items: [
+      { id: 'mcq-6',  label: 'Test 6: Arrays — Score 6 or above' },
+      { id: 'mcq-7',  label: 'Test 7: Strings — Score 6 or above' },
+      { id: 'mcq-8',  label: 'Test 8: Pointers — Score 6 or above' },
+      { id: 'mcq-9',  label: 'Test 9: Functions & Recursion — Score 6 or above' },
+      { id: 'mcq-10', label: 'Test 10: Error Handling — Score 6 or above' },
+    ]
+  },
+  {
+    section: 'Programming Test',
+    items: [
+      { id: 'pt-easy',   label: 'Programming Test — Attempted all Easy questions (Q1–Q5)' },
+      { id: 'pt-medium', label: 'Programming Test — Attempted all Medium questions (Q6–Q13)' },
+      { id: 'pt-hard',   label: 'Programming Test — Attempted all Hard questions (Q14–Q20)' },
+      { id: 'pt-review', label: 'Programming Test — Reviewed all model solutions and explanations' },
+    ]
+  },
+  {
+    section: 'Conceptual Review',
+    items: [
+      { id: 'rev-arrays',    label: 'Can explain array memory layout, indexing, and pointer equivalence' },
+      { id: 'rev-strings',   label: 'Can explain null-termination and use all core string functions from memory' },
+      { id: 'rev-pointers',  label: 'Can explain pointer arithmetic, dangling pointers, and dynamic allocation' },
+      { id: 'rev-functions', label: 'Can explain pass-by-value vs pass-by-reference and recursion in C' },
+      { id: 'rev-errors',    label: 'Can explain errno, perror, assert, and defensive programming practices' },
+    ]
+  }
+];
+
+let checklistState = {};
+
+function loadChecklist() {
+  try {
+    const saved = localStorage.getItem('lrntogo-cl');
+    if (saved) checklistState = JSON.parse(saved);
+  } catch(e) {}
+}
+
+function saveChecklist() {
+  try { localStorage.setItem('lrntogo-cl', JSON.stringify(checklistState)); } catch(e) {}
+}
+
+loadChecklist();
+
+function toggleChecklistItem(id) {
+  checklistState[id] = !checklistState[id];
+  saveChecklist();
+  renderChecklist();
+}
+
+function renderChecklist() {
+  const tracksEl = document.getElementById('cl-tracks');
+  const totalItems = checklistItems.reduce((s, section) => s + section.items.length, 0);
+  let checkedTotal = 0;
+
+  let html = '';
+  checklistItems.forEach(section => {
+    const checkedInSection = section.items.filter(it => checklistState[it.id]).length;
+    const pct = Math.round(checkedInSection / section.items.length * 100);
+    checkedTotal += checkedInSection;
+
+    html += `<div class="cl-track">
+      <div class="cl-track-header">
+        <span class="cl-track-title">${section.section}</span>
+        <span class="cl-track-pct">${checkedInSection} / ${section.items.length}</span>
+      </div>
+      <div class="cl-track-progress-bar" style="width:${pct}%"></div>
+      <div class="cl-track-body">`;
+
+    section.items.forEach(item => {
+      const checked = !!checklistState[item.id];
+      html += `<div class="cl-item" onclick="toggleChecklistItem('${item.id}')">
+        <div class="cl-cb${checked ? ' checked' : ''}"></div>
+        <span class="cl-text${checked ? ' checked' : ''}">${item.label}</span>
+      </div>`;
+    });
+
+    html += `</div></div>`;
+  });
+
+  tracksEl.innerHTML = html;
+
+  const overallPct = Math.round(checkedTotal / totalItems * 100);
+  document.getElementById('overall-bar-fill').style.width = overallPct + '%';
+  document.getElementById('overall-pct').textContent = overallPct + '%';
+
+  const banner = document.getElementById('cl-complete-banner');
+  banner.classList.toggle('show', overallPct === 100);
+}
+</script>
+</body>
+</html>
